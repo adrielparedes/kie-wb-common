@@ -26,6 +26,7 @@ import org.guvnor.common.services.project.backend.server.ProjectRepositoriesCont
 import org.guvnor.common.services.project.service.ProjectRepositoryResolver;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.kie.workbench.common.services.shared.project.KieProject;
+import org.uberfire.backend.server.cdi.workspace.WorkspaceScoped;
 import org.uberfire.backend.server.util.Paths;
 import org.uberfire.backend.vfs.Path;
 import org.uberfire.io.IOService;
@@ -34,7 +35,8 @@ import org.uberfire.io.IOService;
  * CDI implementation for KIE Workbenches
  */
 @Service
-@ApplicationScoped
+//@ApplicationScoped
+@WorkspaceScoped
 public class KieProjectRepositoriesServiceImpl extends AbstractProjectRepositoriesServiceImpl<KieProject> {
 
     protected KieResourceResolver resourceResolver;

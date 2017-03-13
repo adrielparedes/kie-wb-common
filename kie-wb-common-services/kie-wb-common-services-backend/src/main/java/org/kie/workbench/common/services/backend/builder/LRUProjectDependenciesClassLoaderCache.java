@@ -25,6 +25,7 @@ import org.guvnor.common.services.backend.cache.LRUCache;
 import org.kie.api.builder.KieModule;
 import org.kie.scanner.KieModuleMetaData;
 import org.kie.workbench.common.services.shared.project.KieProject;
+import org.uberfire.backend.server.cdi.workspace.WorkspaceScoped;
 
 @ApplicationScoped
 @Named("LRUProjectDependenciesClassLoaderCache")

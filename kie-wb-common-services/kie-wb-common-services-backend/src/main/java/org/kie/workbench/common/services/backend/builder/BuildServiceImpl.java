@@ -52,12 +52,14 @@ import org.kie.workbench.common.services.shared.project.KieProject;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.uberfire.backend.server.cdi.workspace.WorkspaceScoped;
 import org.uberfire.backend.server.util.Paths;
 import org.uberfire.backend.vfs.Path;
 import org.uberfire.workbench.events.ResourceChange;
 
 @Service
-@ApplicationScoped
+@WorkspaceScoped
+//@ApplicationScoped
 public class BuildServiceImpl implements BuildService {
 
     private static final Logger logger = LoggerFactory.getLogger( BuildServiceImpl.class );
@@ -197,8 +199,7 @@ public class BuildServiceImpl implements BuildService {
     /**
      * When an exception is produced by the builder service, this method is uses to generate an instance of
      * <code>org.guvnor.common.services.project.builder.model.BuildResults</code> in generated with the exception details.
-     * @param e
-     *         The error exception.
+     * @param e The error exception.
      * @param gav
      * @return An instance of BuildResults with the exception details.
      */

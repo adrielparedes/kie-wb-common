@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.function.Predicate;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.enterprise.context.ApplicationScoped;
 import javax.enterprise.event.Observes;
 import javax.enterprise.inject.Any;
 import javax.enterprise.inject.Instance;
@@ -41,11 +40,13 @@ import org.uberfire.io.IOService;
 
 import static java.util.stream.Collectors.toCollection;
 import static java.util.stream.StreamSupport.stream;
+import org.uberfire.backend.server.cdi.workspace.WorkspaceScoped;
 
 /**
  * A simple LRU cache for Builders
  */
-@ApplicationScoped
+@WorkspaceScoped
+//@ApplicationScoped
 public class LRUBuilderCache extends LRUCache<Project, Builder> {
 
     private IOService ioService;

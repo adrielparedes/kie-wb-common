@@ -41,6 +41,7 @@ import org.guvnor.structure.server.config.ConfigurationFactory;
 import org.guvnor.structure.server.config.ConfigurationService;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.kie.workbench.common.services.shared.project.KieProject;
+import org.uberfire.backend.server.cdi.workspace.WorkspaceScoped;
 import org.uberfire.backend.vfs.Path;
 import org.uberfire.io.IOService;
 import org.uberfire.rpc.SessionInfo;
