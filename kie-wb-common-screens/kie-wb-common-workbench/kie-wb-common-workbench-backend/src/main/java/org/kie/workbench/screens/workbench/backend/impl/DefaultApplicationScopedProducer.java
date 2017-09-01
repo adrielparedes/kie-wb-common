@@ -35,6 +35,7 @@ import org.uberfire.commons.cluster.ClusterServiceFactory;
 import org.uberfire.commons.concurrent.Unmanaged;
 import org.uberfire.commons.services.cdi.Startup;
 import org.uberfire.commons.services.cdi.StartupType;
+import org.uberfire.ext.metadata.MetadataConfig;
 import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
 import org.uberfire.ext.metadata.io.IOSearchServiceImpl;
 import org.uberfire.ext.metadata.io.IOServiceIndexedImpl;
@@ -54,7 +55,7 @@ public class DefaultApplicationScopedProducer implements ApplicationScopedProduc
 
     private IOService ioService;
     private IOSearchService ioSearchService;
-    private LuceneConfig config;
+    private MetadataConfig config;
     private ClusterServiceFactory clusterServiceFactory;
     private IOWatchServiceNonDotImpl watchService;
     private AuthenticationService authenticationService;
@@ -74,7 +75,7 @@ public class DefaultApplicationScopedProducer implements ApplicationScopedProduc
     }
 
     @Inject
-    public DefaultApplicationScopedProducer(@Named("luceneConfig") LuceneConfig config,
+    public DefaultApplicationScopedProducer(@Named("luceneConfig") MetadataConfig config,
                                             @Named("clusterServiceFactory") ClusterServiceFactory clusterServiceFactory,
                                             IOWatchServiceNonDotImpl watchService,
                                             AuthenticationService authenticationService,

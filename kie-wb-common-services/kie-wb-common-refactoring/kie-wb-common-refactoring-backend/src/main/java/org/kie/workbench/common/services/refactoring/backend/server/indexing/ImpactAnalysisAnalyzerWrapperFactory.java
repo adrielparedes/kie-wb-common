@@ -18,8 +18,7 @@ package org.kie.workbench.common.services.refactoring.backend.server.indexing;
 import java.util.Map;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.uberfire.ext.metadata.backend.lucene.index.CustomAnalyzerWrapperFactory;
-
+import org.uberfire.ext.metadata.CustomAnalyzerWrapperFactory;
 
 /**
  * Factory class for the {@link ImpactAnalysisAnalyzerWrapper}. This construct is necessary in order to be able to use the

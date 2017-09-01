@@ -24,12 +24,25 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
+import org.apache.lucene.analysis.standard.StandardAnalyzer;
+import org.apache.lucene.analysis.util.CharArraySet;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.kie.workbench.common.screens.library.api.index.LibraryFileNameIndexTerm;
 import org.kie.workbench.common.screens.library.api.index.LibraryProjectRootPathIndexTerm;
 import org.kie.workbench.common.services.refactoring.backend.server.indexing.ImpactAnalysisAnalyzerWrapperFactory;
 import org.kie.workbench.common.services.refactoring.backend.server.indexing.LowerCaseOnlyAnalyzer;
 import org.kie.workbench.common.services.refactoring.model.index.terms.PackageNameIndexTerm;
 import org.kie.workbench.common.services.refactoring.model.index.terms.ProjectRootPathIndexTerm;
+import org.uberfire.ext.metadata.MetadataConfig;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfig;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfigBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine;
+import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
 import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
 import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
@@ -42,22 +55,27 @@ import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
 @ApplicationScoped
 public class DefaultLuceneConfigProducer {
 
-    private LuceneConfig config;
+    private MetadataConfig config;
 
     @PostConstruct
     public void setup() {
         final Map<String, Analyzer> analyzers = getAnalyzers();
-        this.config = new LuceneConfigBuilder().withInMemoryMetaModelStore()
+
+        SearchIntegrator searchIntegrator = new SearchIntegratorBuilder()
+                .addClass(KObjectImpl.class)
+                .withPreferences(new HibernateSearchPreferences())
+                .build();
+
+        this.config = new HibernateSearchConfigBuilder()
+                .withSearchIntegrator(searchIntegrator)
                 .usingAnalyzers(analyzers)
                 .usingAnalyzerWrapperFactory(ImpactAnalysisAnalyzerWrapperFactory.getInstance())
-                .useDirectoryBasedIndex()
-                .useNIODirectory()
                 .build();
     }
 
     @Produces
     @Named("luceneConfig")
-    public LuceneConfig configProducer() {
+    public MetadataConfig configProducer() {
         return this.config;
     }
 
