@@ -47,6 +47,7 @@ import org.kie.workbench.common.services.refactoring.model.query.RefactoringPage
 import org.kie.workbench.common.services.refactoring.service.RefactoringQueryService;
 import org.kie.workbench.common.services.refactoring.service.impact.QueryOperationRequest;
 import org.uberfire.commons.validation.PortablePreconditions;
+import org.uberfire.ext.metadata.MetadataConfig;
 import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
 import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndexManager;
 import org.uberfire.ext.metadata.model.KObject;
@@ -59,7 +60,7 @@ import static org.uberfire.ext.metadata.backend.lucene.util.KObjectUtil.toKObjec
 @ApplicationScoped
 public class RefactoringQueryServiceImpl implements RefactoringQueryService {
 
-    private LuceneConfig config;
+    private MetadataConfig config;
     private NamedQueries namedQueries;
     private PageResponse<RefactoringPageRow> emptyResponse;
 
@@ -68,7 +69,7 @@ public class RefactoringQueryServiceImpl implements RefactoringQueryService {
     }
 
     @Inject
-    public RefactoringQueryServiceImpl( @Named("luceneConfig") final LuceneConfig config,
+    public RefactoringQueryServiceImpl( @Named("luceneConfig") final MetadataConfig config,
                                         final NamedQueries namedQueries ) {
         this.config = PortablePreconditions.checkNotNull( "config", config );
         this.namedQueries = PortablePreconditions.checkNotNull( "namedQueries", namedQueries );

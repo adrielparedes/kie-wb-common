@@ -20,6 +20,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.model.KObjectKey;
 import org.uberfire.ext.metadata.model.KProperty;
@@ -100,61 +101,18 @@ public class KObjectUtil {
     public static KObject toKObject(final Path path,
                                     final String classifier,
                                     final Set<KProperty<?>> indexElements) {
-        return new KObject() {
 
-            @Override
-            public String getId() {
-                return sha1(getType().getName() + "|" + classifier + "|" + getKey());
-            }
+        KObjectImpl kObject = new KObjectImpl();
 
-            @Override
-            public MetaType getType() {
-                return META_TYPE;
-            }
+        kObject.setType(META_TYPE);
+        kObject.setKey(path.toUri().toString());
+        kObject.setClusterId(((FileSystemId) path.getFileSystem()).id());
+        kObject.setSegmentId(((SegmentedPath) path).getSegmentId());
+        kObject.setId(sha1(kObject.getType().getName() + "|" + kObject.getKey()));
+        kObject.setFullText(true);
+        kObject.setProperties(indexElements);
 
-            @Override
-            public String getClusterId() {
-                return ((FileSystemId) path.getFileSystem()).id();
-            }
-
-            @Override
-            public String getSegmentId() {
-                return ((SegmentedPath) path).getSegmentId();
-            }
-
-            @Override
-            public String getKey() {
-                return path.toUri().toString();
-            }
-
-            @Override
-            public Iterable<KProperty<?>> getProperties() {
-                return indexElements;
-            }
-
-            @Override
-            public boolean fullText() {
-                return false;
-            }
-
-            @Override
-            public String toString() {
-                StringBuilder sb = new StringBuilder("KObject{" +
-                                                             ", key='" + getKey() + '\'' +
-                                                             ", id='" + getId() + '\'' +
-                                                             ", type=" + getType() +
-                                                             ", clusterId='" + getClusterId() + '\'' +
-                                                             ", segmentId='" + getSegmentId() + '\'');
-
-                for (KProperty<?> xproperty : getProperties()) {
-                    sb.append(", " + xproperty.getName() + "='" + xproperty.getValue() + '\'');
-                }
-
-                sb.append('}');
-
-                return sb.toString();
-            }
-        };
+        return kObject;
     }
 
     private static String sha1(final String input) {
