@@ -23,14 +23,18 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
 import org.apache.lucene.analysis.Analyzer;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.kie.workbench.common.services.refactoring.backend.server.indexing.ImpactAnalysisAnalyzerWrapperFactory;
 import org.kie.workbench.common.services.refactoring.backend.server.indexing.LowerCaseOnlyAnalyzer;
 import org.kie.workbench.common.services.refactoring.model.index.terms.PackageNameIndexTerm;
 import org.kie.workbench.common.services.refactoring.model.index.terms.ProjectNameIndexTerm;
 import org.kie.workbench.common.services.refactoring.model.index.terms.ProjectRootPathIndexTerm;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
-import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.MetadataConfig;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfigBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 
 /**
  * This class contains the default Lucene configuration, and can be
@@ -39,22 +43,27 @@ import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
 @ApplicationScoped
 public class DefaultLuceneConfigProducer {
 
-    private LuceneConfig config;
+    private MetadataConfig config;
 
     @PostConstruct
     public void setup() {
         final Map<String, Analyzer> analyzers = getAnalyzers();
-        this.config = new LuceneConfigBuilder().withInMemoryMetaModelStore()
+
+        SearchIntegrator searchIntegrator = new SearchIntegratorBuilder()
+                .withPreferences(new HibernateSearchPreferences())
+                .addClass(KObjectImpl.class)
+                .build();
+
+        this.config = new HibernateSearchConfigBuilder()
+                .withSearchIntegrator(searchIntegrator)
                 .usingAnalyzers(analyzers)
                 .usingAnalyzerWrapperFactory(ImpactAnalysisAnalyzerWrapperFactory.getInstance())
-                .useDirectoryBasedIndex()
-                .useNIODirectory()
                 .build();
     }
 
     @Produces
     @Named("luceneConfig")
-    public LuceneConfig configProducer() {
+    public MetadataConfig configProducer() {
         return this.config;
     }
 

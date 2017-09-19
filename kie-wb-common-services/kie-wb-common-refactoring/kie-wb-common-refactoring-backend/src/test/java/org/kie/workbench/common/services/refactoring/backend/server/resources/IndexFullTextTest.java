@@ -16,9 +16,6 @@
 
 package org.kie.workbench.common.services.refactoring.backend.server.resources;
 
-import static org.mockito.Mockito.mock;
-import static org.uberfire.ext.metadata.engine.MetaIndexEngine.FULL_TEXT_FIELD;
-
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Map;
@@ -32,25 +29,24 @@ import org.kie.workbench.common.services.refactoring.backend.server.TestIndexer;
 import org.kie.workbench.common.services.refactoring.backend.server.TestPropertiesFileIndexer;
 import org.kie.workbench.common.services.refactoring.backend.server.TestPropertiesFileTypeDefinition;
 import org.kie.workbench.common.services.shared.project.KieProjectService;
-import org.uberfire.ext.metadata.engine.Index;
-import org.uberfire.ext.metadata.io.KObjectUtil;
+
+import static org.mockito.Mockito.*;
+import static org.uberfire.ext.metadata.engine.MetaIndexEngine.FULL_TEXT_FIELD;
 
 public class IndexFullTextTest extends BaseIndexingTest<TestPropertiesFileTypeDefinition> {
 
     @Test
     public void testIndexingFullText() throws IOException, InterruptedException {
         //Add test files
-        loadProperties( "file1.properties",
-                        basePath );
-        loadProperties( "file2.properties",
-                        basePath );
+        loadProperties("file1.properties",
+                       basePath);
+        loadProperties("file2.properties",
+                       basePath);
 
-        Thread.sleep( 5000 ); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
+        Thread.sleep(5000); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
 
-        final Index index = getConfig().getIndexManager().get( KObjectUtil.toKCluster( basePath.getFileSystem() ) );
-
-        searchFor(index,
-                  new WildcardQuery( new Term( FULL_TEXT_FIELD, "*file*" ) ),
+        searchFor(new WildcardQuery(new Term(FULL_TEXT_FIELD,
+                                             "*file*")),
                   2);
     }
 
@@ -76,7 +72,6 @@ public class IndexFullTextTest extends BaseIndexingTest<TestPropertiesFileTypeDe
 
     @Override
     protected KieProjectService getProjectService() {
-        return mock( KieProjectService.class );
+        return mock(KieProjectService.class);
     }
-
 }

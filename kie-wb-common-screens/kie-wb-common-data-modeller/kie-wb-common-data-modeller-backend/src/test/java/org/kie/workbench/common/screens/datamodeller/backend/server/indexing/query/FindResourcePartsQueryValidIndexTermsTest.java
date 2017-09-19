@@ -15,12 +15,6 @@
  */
 package org.kie.workbench.common.screens.datamodeller.backend.server.indexing.query;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -28,15 +22,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.enterprise.inject.Instance;
-
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.junit.Test;
 import org.kie.workbench.common.screens.datamodeller.backend.server.indexing.TestJavaFileIndexer;
 import org.kie.workbench.common.screens.javaeditor.type.JavaResourceTypeDefinition;
@@ -57,25 +46,28 @@ import org.kie.workbench.common.services.refactoring.model.query.RefactoringPage
 import org.kie.workbench.common.services.refactoring.service.PartType;
 import org.kie.workbench.common.services.refactoring.service.ResourceType;
 import org.uberfire.commons.data.Pair;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.engine.Index;
-import org.uberfire.ext.metadata.io.KObjectUtil;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfig;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.model.KObject;
+import org.uberfire.ext.metadata.model.KProperty;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.paging.PageResponse;
+
+import static org.junit.Assert.*;
 
 public class FindResourcePartsQueryValidIndexTermsTest extends BaseIndexingTest<JavaResourceTypeDefinition> {
 
     protected Set<NamedQuery> getQueries() {
         return new HashSet<NamedQuery>() {{
-            add( new FindResourcePartsQuery() {
+            add(new FindResourcePartsQuery() {
                 @Override
                 public ResponseBuilder getResponseBuilder() {
-                    return new DefaultResponseBuilder( ioService() );
+                    return new DefaultResponseBuilder(ioService());
                 }
-            } );
+            });
         }};
     }
-
 
     @Test
     public void testIndexJavaFilesAndFindResourcePartsQuery() throws Exception {
@@ -84,100 +76,103 @@ public class FindResourcePartsQueryValidIndexTermsTest extends BaseIndexingTest<
 
         //Add test files
         String pojo1FileName = "Pojo1.java";
-        Path path = basePath.resolve( pojo1FileName );
-        String javaSourceText = loadText( "../" + pojo1FileName );
-        ioService().write( path, javaSourceText );
+        Path path = basePath.resolve(pojo1FileName);
+        String javaSourceText = loadText("../" + pojo1FileName);
+        ioService().write(path,
+                          javaSourceText);
 
         // wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
         Thread.sleep(5000);
 
-        final Index index = getConfig().getIndexManager().get( KObjectUtil.toKCluster( basePath.getFileSystem() ) );
+        IndexProvider indexProvider = ((HibernateSearchConfig) getConfig()).getIndexProvider();
 
         {
-            final IndexSearcher searcher = ( (LuceneIndex) index ).nrtSearcher();
-            final TopScoreDocCollector collector = TopScoreDocCollector.create( 10 );
-            final Query query = new SingleTermQueryBuilder( new ValueResourceIndexTerm( "*", ResourceType.JAVA, TermSearchType.WILDCARD ) ).build();
+            final Query query = new SingleTermQueryBuilder(new ValueResourceIndexTerm("*",
+                                                                                      ResourceType.JAVA,
+                                                                                      TermSearchType.WILDCARD)).build();
 
-            searcher.search( query,
-                             collector );
-            final ScoreDoc[] hits = collector.topDocs().scoreDocs;
+            List<KObjectImpl> hits = indexProvider.findByQuery(KObjectImpl.class,
+                                                               query);
 
-            assertEquals( 1, hits.length );
+            assertEquals(1,
+                         hits.size());
 
             List<Pair<String, String>> expectedValues = initExpectedValues();
 
-            Document doc = null;
-            for( ScoreDoc scoreDoc : hits ) {
-               doc = searcher.doc(scoreDoc.doc);
-               for( IndexableField indField : doc.getFields() ) {
-                   String fieldVal = indField.stringValue();
-                  if( fieldVal.startsWith("git://" ) ) {
-                      if( fieldVal.contains(pojo1FileName) ) {
-                          break;
-                      }
-                  } else {
-                      continue;
-                  }
-               }
+            KObject doc = null;
+            for (KObject kobject : hits) {
+                doc = kobject;
+                for (KProperty property : kobject.getProperties()) {
+                    String fieldVal = String.valueOf(property.getValue());
+                    if (fieldVal.startsWith("git://")) {
+                        if (fieldVal.contains(pojo1FileName)) {
+                            break;
+                        }
+                    } else {
+                        continue;
+                    }
+                }
             }
 
-            assertContains( expectedValues, doc );
-
-            ( (LuceneIndex) index ).nrtRelease( searcher );
+            assertContains(expectedValues,
+                           doc);
         }
 
         {
 
             HashSet<ValueIndexTerm> queryTerms = new HashSet<ValueIndexTerm>();
-            queryTerms.add( new ValuePartIndexTerm(
+            queryTerms.add(new ValuePartIndexTerm(
                     "o_BigDecimal",
-                    PartType.FIELD ) );
+                    PartType.FIELD));
 
-            final RefactoringPageRequest request = new RefactoringPageRequest( FindResourcePartsQuery.NAME,
-                                                                               queryTerms,
-                                                                               0,
-                                                                               10 );
+            final RefactoringPageRequest request = new RefactoringPageRequest(FindResourcePartsQuery.NAME,
+                                                                              queryTerms,
+                                                                              0,
+                                                                              10);
 
             try {
-                final PageResponse<RefactoringPageRow> response = service.query( request );
-                assertNotNull( "No documents found!", response  );
-                assertEquals( 1,
-                              response.getPageRowList().size() );
-
-            } catch ( IllegalArgumentException e ) {
+                final PageResponse<RefactoringPageRow> response = service.query(request);
+                assertNotNull("No documents found!",
+                              response);
+                assertEquals(1,
+                             response.getPageRowList().size());
+            } catch (IllegalArgumentException e) {
                 e.printStackTrace();
-                fail( "Could not execute query: " + e.getMessage());
+                fail("Could not execute query: " + e.getMessage());
             }
-        };
-    }
-
-    private void assertContains( List<Pair<String, String>> expectedValues,
-                                 Document doc ) {
-
-        List<Pair<String, String>> returnedValues = new ArrayList<Pair<String, String>>();
-        for ( IndexableField field : doc.getFields() ) {
-            returnedValues.add( new Pair<String, String>( field.name(), field.stringValue() ) );
         }
 
-        //assertEquals( expectedValues.size(), returnedValues.size() );
-        for ( Pair<String, String> expectedValue : expectedValues ) {
-            int index = returnedValues.indexOf( expectedValue );
-            if ( index < 0 ) {
-                fail( "Expected value is not in Document fields: [" + expectedValue.getK1() + " => " + expectedValue.getK2() + "]" );
+        ;
+    }
+
+    private void assertContains(List<Pair<String, String>> expectedValues,
+                                KObject doc) {
+
+        List<Pair<String, String>> returnedValues = new ArrayList<>();
+        for (KProperty field : doc.getProperties()) {
+            returnedValues.add(new Pair<>(field.getName(),
+                                          String.valueOf(field.getValue())));
+        }
+
+        for (Pair<String, String> expectedValue : expectedValues) {
+            int index = returnedValues.indexOf(expectedValue);
+            if (index < 0) {
+                fail("Expected value is not in Document fields: [" + expectedValue.getK1() + " => " + expectedValue.getK2() + "]");
             } else {
-                returnedValues.remove( index );
+                returnedValues.remove(index);
             }
         }
     }
 
     private List<Pair<String, String>> initExpectedValues() {
 
-        List<Pair<String, String>> expectedValues = new ArrayList<Pair<String, String>>();
+        List<Pair<String, String>> expectedValues = new ArrayList<>();
 
-        expectedValues.add( new Pair<String, String>( ResourceType.JAVA.toString(), "org.kie.workbench.common.screens.datamodeller.backend.server.indexing.Pojo1" ) );
+        expectedValues.add(new Pair<>(ResourceType.JAVA.toString(),
+                                      "org.kie.workbench.common.screens.datamodeller.backend.server.indexing.Pojo1"));
 
         // identifying info
-        String [] fieldNames = new String [] {
+        String[] fieldNames = new String[]{
                 "o_BigDecimal",
                 "o_BigInteger",
                 "o_Boolean",
@@ -199,39 +194,42 @@ public class FindResourcePartsQueryValidIndexTermsTest extends BaseIndexingTest<
                 "p_long",
                 "p_short"
         };
-        for( String className : fieldNames ) {
-           ValuePartIndexTerm partTerm = new ValuePartIndexTerm(className, PartType.FIELD);
-           expectedValues.add( new Pair<String, String>( partTerm.getTerm(), partTerm.getValue() ) );
+        for (String className : fieldNames) {
+            ValuePartIndexTerm partTerm = new ValuePartIndexTerm(className,
+                                                                 PartType.FIELD);
+            expectedValues.add(new Pair<>(partTerm.getTerm(),
+                                          partTerm.getValue()));
         }
 
         // references
-        String [] referencedClasses = new String [] {
-              "java.util.Date",
-              "java.io.Serializable",
-              "java.math.BigDecimal",
-              "java.lang.Boolean",
-              "java.lang.Byte",
-              "java.lang.Character",
-              "java.lang.Double",
-              "java.lang.Float",
-              "java.lang.Integer",
-              "java.lang.Long",
-              "boolean",
-              "byte",
-              "char",
-              "double",
-              "float",
-              "long",
-              "short"
+        String[] referencedClasses = new String[]{
+                "java.util.Date",
+                "java.io.Serializable",
+                "java.math.BigDecimal",
+                "java.lang.Boolean",
+                "java.lang.Byte",
+                "java.lang.Character",
+                "java.lang.Double",
+                "java.lang.Float",
+                "java.lang.Integer",
+                "java.lang.Long",
+                "boolean",
+                "byte",
+                "char",
+                "double",
+                "float",
+                "long",
+                "short"
         };
 
-        for( String className : referencedClasses ) {
-           ValueReferenceIndexTerm refTerm = new ValueReferenceIndexTerm(className, ResourceType.JAVA);
-           expectedValues.add( new Pair<String, String>( refTerm.getTerm(), refTerm.getValue() ) );
+        for (String className : referencedClasses) {
+            ValueReferenceIndexTerm refTerm = new ValueReferenceIndexTerm(className,
+                                                                          ResourceType.JAVA);
+            expectedValues.add(new Pair<>(refTerm.getTerm(),
+                                          refTerm.getValue()));
         }
 
         return expectedValues;
-
     }
 
     @Override

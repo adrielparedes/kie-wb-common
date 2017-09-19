@@ -28,7 +28,6 @@ import org.kie.workbench.common.services.refactoring.backend.server.TestIndexer;
 import org.kie.workbench.common.services.refactoring.backend.server.query.builder.SingleTermQueryBuilder;
 import org.kie.workbench.common.services.refactoring.model.index.terms.valueterms.ValuePartReferenceIndexTerm;
 import org.kie.workbench.common.services.refactoring.service.PartType;
-import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.java.nio.file.Path;
 
 public class IndexDrlLHSTypeFieldTest extends BaseIndexingTest<TestDrlFileTypeDefinition> {
@@ -37,26 +36,28 @@ public class IndexDrlLHSTypeFieldTest extends BaseIndexingTest<TestDrlFileTypeDe
     public void testIndexDrlLHSTypeField() throws IOException, InterruptedException {
         ioService().startBatch(ioService().getFileSystem(basePath.toUri()));
         //Add test files
-        final Path path1 = basePath.resolve( "drl1.drl" );
-        final String drl1 = loadText( "drl1.drl" );
-        ioService().write( path1,
-                           drl1 );
-        final Path path2 = basePath.resolve( "drl4.drl" );
-        final String drl2 = loadText( "drl4.drl" );
-        ioService().write( path2,
-                           drl2 );
+        final Path path1 = basePath.resolve("drl1.drl");
+        final String drl1 = loadText("drl1.drl");
+        ioService().write(path1,
+                          drl1);
+        final Path path2 = basePath.resolve("drl4.drl");
+        final String drl2 = loadText("drl4.drl");
+        ioService().write(path2,
+                          drl2);
         ioService().endBatch();
 
-        Thread.sleep( 7000 ); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
-
-        final Index index = getConfig().getIndexManager().get( org.uberfire.ext.metadata.io.KObjectUtil.toKCluster( basePath.getFileSystem() ) );
+        Thread.sleep(7000); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
 
         {
-            final Query query = new SingleTermQueryBuilder( new ValuePartReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant", "age", PartType.FIELD ) )
+            final Query query = new SingleTermQueryBuilder(new ValuePartReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant",
+                                                                                           "age",
+                                                                                           PartType.FIELD))
                     .build();
-            searchFor(index, query, 2, path1, path2);
+            searchFor(query,
+                      2,
+                      path1,
+                      path2);
         }
-
     }
 
     @Override
@@ -78,5 +79,4 @@ public class IndexDrlLHSTypeFieldTest extends BaseIndexingTest<TestDrlFileTypeDe
     protected String getRepositoryName() {
         return this.getClass().getSimpleName();
     }
-
 }

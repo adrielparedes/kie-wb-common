@@ -24,9 +24,6 @@ import javax.enterprise.inject.Produces;
 import javax.inject.Named;
 
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.analysis.miscellaneous.PerFieldAnalyzerWrapper;
-import org.apache.lucene.analysis.standard.StandardAnalyzer;
-import org.apache.lucene.analysis.util.CharArraySet;
 import org.hibernate.search.spi.SearchIntegrator;
 import org.kie.workbench.common.screens.library.api.index.LibraryFileNameIndexTerm;
 import org.kie.workbench.common.screens.library.api.index.LibraryProjectRootPathIndexTerm;
@@ -35,18 +32,12 @@ import org.kie.workbench.common.services.refactoring.backend.server.indexing.Low
 import org.kie.workbench.common.services.refactoring.model.index.terms.PackageNameIndexTerm;
 import org.kie.workbench.common.services.refactoring.model.index.terms.ProjectRootPathIndexTerm;
 import org.uberfire.ext.metadata.MetadataConfig;
-import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfig;
 import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfigBuilder;
-import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchIndexEngine;
-import org.uberfire.ext.metadata.backend.hibernate.index.HibernateSearchSearchIndex;
-import org.uberfire.ext.metadata.backend.hibernate.index.providers.HibernateSearchIndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
 import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
 import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
 import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
-import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
 
 /**
  * This class contains the default Lucene configuration, and can be
@@ -62,8 +53,8 @@ public class DefaultLuceneConfigProducer {
         final Map<String, Analyzer> analyzers = getAnalyzers();
 
         SearchIntegrator searchIntegrator = new SearchIntegratorBuilder()
-                .addClass(KObjectImpl.class)
                 .withPreferences(new HibernateSearchPreferences())
+                .addClass(KObjectImpl.class)
                 .build();
 
         this.config = new HibernateSearchConfigBuilder()
@@ -79,7 +70,7 @@ public class DefaultLuceneConfigProducer {
         return this.config;
     }
 
-    Map<String, Analyzer> getAnalyzers() {
+    protected Map<String, Analyzer> getAnalyzers() {
         return new HashMap<String, Analyzer>() {{
             put(LibraryFileNameIndexTerm.TERM,
                 new FilenameAnalyzer());
@@ -89,7 +80,7 @@ public class DefaultLuceneConfigProducer {
                 new FilenameAnalyzer());
             put(PackageNameIndexTerm.TERM,
                 new LowerCaseOnlyAnalyzer());
-            put(LuceneIndex.CUSTOM_FIELD_FILENAME,
+            put(IndexProvider.CUSTOM_FIELD_FILENAME,
                 new FilenameAnalyzer());
 
             // all of the (resource, part, shared, etc) references and resource or part terms

@@ -35,7 +35,7 @@ import org.kie.workbench.common.services.refactoring.backend.server.query.Refact
 import org.kie.workbench.common.services.refactoring.model.index.terms.ProjectRootPathIndexTerm;
 import org.kie.workbench.common.services.refactoring.model.query.RefactoringPageRow;
 import org.kie.workbench.common.services.refactoring.model.query.RefactoringRuleNamePageRow.RuleName;
-import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
 import org.uberfire.io.IOService;
 import org.uberfire.java.nio.file.Path;
 import org.uberfire.workbench.type.ResourceTypeDefinition;

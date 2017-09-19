@@ -19,7 +19,7 @@ package org.kie.workbench.common.services.refactoring.backend.server.indexing;
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.analysis.TokenStream;
 import org.apache.lucene.analysis.core.LowerCaseFilter;
-import org.uberfire.ext.metadata.backend.lucene.analyzer.LowerCaseTokenizer;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.LowerCaseTokenizer;
 
 /**
  * A specialise analyzer to include special characters in attribute names, such as "-"

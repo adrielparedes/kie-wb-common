@@ -26,8 +26,8 @@ import org.kie.workbench.common.screens.library.api.index.LibraryProjectRootPath
 import org.kie.workbench.common.services.refactoring.backend.server.indexing.LowerCaseOnlyAnalyzer;
 import org.kie.workbench.common.services.refactoring.model.index.terms.PackageNameIndexTerm;
 import org.kie.workbench.common.services.refactoring.model.index.terms.ProjectRootPathIndexTerm;
-import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
 
 import static org.junit.Assert.*;
 
@@ -50,6 +50,6 @@ public class DefaultLuceneConfigProducerTest {
         assertTrue(analyzers.get(LibraryProjectRootPathIndexTerm.TERM) instanceof FilenameAnalyzer);
         assertTrue(analyzers.get(ProjectRootPathIndexTerm.TERM) instanceof FilenameAnalyzer);
         assertTrue(analyzers.get(PackageNameIndexTerm.TERM) instanceof LowerCaseOnlyAnalyzer);
-        assertTrue(analyzers.get(LuceneIndex.CUSTOM_FIELD_FILENAME) instanceof FilenameAnalyzer);
+        assertTrue(analyzers.get(IndexProvider.CUSTOM_FIELD_FILENAME) instanceof FilenameAnalyzer);
     }
 }

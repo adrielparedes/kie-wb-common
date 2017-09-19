@@ -37,6 +37,7 @@ import javax.enterprise.inject.Instance;
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
 import org.guvnor.common.services.project.model.Package;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -55,14 +56,17 @@ import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.commons.async.DescriptiveThreadFactory;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
-import org.uberfire.ext.metadata.backend.lucene.analyzer.FilenameAnalyzer;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
 import org.uberfire.ext.metadata.io.IOServiceIndexedImpl;
 import org.uberfire.ext.metadata.io.IndexersFactory;
 import org.uberfire.io.IOService;
 import org.uberfire.java.nio.file.Path;
+import org.uberfire.ext.metadata.MetadataConfig;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfigBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.analyzer.FilenameAnalyzer;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 
 import static org.mockito.Mockito.*;
 
@@ -74,7 +78,7 @@ public abstract class BaseLibraryIndexingTest {
 
     private static final List<File> tempFiles = new ArrayList<>();
 
-    private static LuceneConfig config;
+    private static MetadataConfig config;
     protected int seed = new Random(10L).nextInt();
     protected boolean created = false;
     protected Path basePath;
@@ -207,15 +211,15 @@ public abstract class BaseLibraryIndexingTest {
     protected IOService ioService() {
         if (ioService == null) {
             final Map<String, Analyzer> analyzers = getAnalyzers();
-            LuceneConfigBuilder configBuilder = new LuceneConfigBuilder()
-                    .withInMemoryMetaModelStore()
+            SearchIntegrator searchIntegrator = new SearchIntegratorBuilder()
+                    .withPreferences(new HibernateSearchPreferences())
+                    .addClass(KObjectImpl.class)
+                    .build();
+
+            HibernateSearchConfigBuilder configBuilder = new HibernateSearchConfigBuilder()
+                    .withSearchIntegrator(searchIntegrator)
                     .usingAnalyzers(analyzers)
-                    .usingAnalyzerWrapperFactory(ImpactAnalysisAnalyzerWrapperFactory.getInstance())
-                    .useInMemoryDirectory()
-                    // If you want to use Luke to inspect the index,
-                    // comment ".useInMemoryDirectory(), and uncomment below..
-//                     .useNIODirectory()
-                    .useDirectoryBasedIndex();
+                    .usingAnalyzerWrapperFactory(ImpactAnalysisAnalyzerWrapperFactory.getInstance());
 
             if (config == null) {
                 config = configBuilder.build();
@@ -247,7 +251,7 @@ public abstract class BaseLibraryIndexingTest {
                 new FilenameAnalyzer());
             put(PackageNameIndexTerm.TERM,
                 new LowerCaseOnlyAnalyzer());
-            put(LuceneIndex.CUSTOM_FIELD_FILENAME,
+            put(IndexProvider.CUSTOM_FIELD_FILENAME,
                 new FilenameAnalyzer());
         }};
     }

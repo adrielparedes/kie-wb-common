@@ -30,7 +30,6 @@ import org.kie.workbench.common.services.refactoring.model.index.terms.valueterm
 import org.kie.workbench.common.services.refactoring.model.index.terms.valueterms.ValueReferenceIndexTerm;
 import org.kie.workbench.common.services.refactoring.service.PartType;
 import org.kie.workbench.common.services.refactoring.service.ResourceType;
-import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.java.nio.file.Path;
 
 public class IndexDrlLHSTypeExpressionField4Test extends BaseIndexingTest<TestDrlFileTypeDefinition> {
@@ -38,45 +37,63 @@ public class IndexDrlLHSTypeExpressionField4Test extends BaseIndexingTest<TestDr
     @Test
     public void testIndexDrlLHSTypeExpressionField4() throws IOException, InterruptedException {
         //Add test files
-        final Path path1 = basePath.resolve( "drl6.drl" );
-        final String drl1 = loadText( "drl6.drl" );
-        ioService().write( path1,
-                           drl1 );
+        final Path path1 = basePath.resolve("drl6.drl");
+        final String drl1 = loadText("drl6.drl");
+        ioService().write(path1,
+                          drl1);
 
-        Thread.sleep( 5000 ); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
-
-        final Index index = getConfig().getIndexManager().get( org.uberfire.ext.metadata.io.KObjectUtil.toKCluster( basePath.getFileSystem() ) );
+        Thread.sleep(5000); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
 
         {
-            final Query query = new SingleTermQueryBuilder( new ValueReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Bank", ResourceType.JAVA ) ).build();
-            searchFor(index, query, 1, path1);
+            final Query query = new SingleTermQueryBuilder(new ValueReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Bank",
+                                                                                       ResourceType.JAVA)).build();
+            searchFor(query,
+                      1,
+                      path1);
         }
 
         {
-            final Query query = new SingleTermQueryBuilder( new ValueReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Mortgage", ResourceType.JAVA ) ).build();
-            searchFor(index, query, 1, path1);
+            final Query query = new SingleTermQueryBuilder(new ValueReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Mortgage",
+                                                                                       ResourceType.JAVA)).build();
+            searchFor(query,
+                      1,
+                      path1);
         }
 
         {
-            final Query query = new SingleTermQueryBuilder( new ValueReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant", ResourceType.JAVA ) ).build();
-            searchFor(index, query, 1, path1);
+            final Query query = new SingleTermQueryBuilder(new ValueReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant",
+                                                                                       ResourceType.JAVA)).build();
+            searchFor(query,
+                      1,
+                      path1);
         }
 
         {
-            final Query query = new SingleTermQueryBuilder( new ValuePartReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Bank","mortgage", PartType.FIELD ) ).build();
-            searchFor(index, query, 1, path1);
+            final Query query = new SingleTermQueryBuilder(new ValuePartReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Bank",
+                                                                                           "mortgage",
+                                                                                           PartType.FIELD)).build();
+            searchFor(query,
+                      1,
+                      path1);
         }
 
         {
-            final Query query = new SingleTermQueryBuilder( new ValuePartReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Mortgage", "applicant", PartType.FIELD ) ).build();
-            searchFor(index, query, 1, path1);
+            final Query query = new SingleTermQueryBuilder(new ValuePartReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Mortgage",
+                                                                                           "applicant",
+                                                                                           PartType.FIELD)).build();
+            searchFor(query,
+                      1,
+                      path1);
         }
 
         {
-            final Query query = new SingleTermQueryBuilder( new ValuePartReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant", "age", PartType.FIELD ) ).build();
-            searchFor(index, query, 1, path1);
+            final Query query = new SingleTermQueryBuilder(new ValuePartReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant",
+                                                                                           "age",
+                                                                                           PartType.FIELD)).build();
+            searchFor(query,
+                      1,
+                      path1);
         }
-
     }
 
     @Override
@@ -98,5 +115,4 @@ public class IndexDrlLHSTypeExpressionField4Test extends BaseIndexingTest<TestDr
     protected String getRepositoryName() {
         return this.getClass().getSimpleName();
     }
-
 }

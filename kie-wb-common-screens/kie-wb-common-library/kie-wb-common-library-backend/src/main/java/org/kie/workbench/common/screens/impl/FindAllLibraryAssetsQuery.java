@@ -29,7 +29,7 @@ import org.kie.workbench.common.services.refactoring.backend.server.query.respon
 import org.kie.workbench.common.services.refactoring.backend.server.query.response.ResponseBuilder;
 import org.kie.workbench.common.services.refactoring.backend.server.query.standard.AbstractFindQuery;
 import org.kie.workbench.common.services.refactoring.model.index.terms.valueterms.ValueIndexTerm;
-import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
+import org.uberfire.ext.metadata.backend.hibernate.model.FieldFactory;
 
 @ApplicationScoped
 public class FindAllLibraryAssetsQuery
@@ -66,8 +66,8 @@ public class FindAllLibraryAssetsQuery
         return responseBuilder;
     }
 
-    /* (non-Javadoc)
-     * @see org.kie.workbench.common.services.refactoring.backend.server.query.NamedQuery#validateTerms(java.util.Set)
+    /* (non-javadoc)
+     * @see org.kie.workbench.common.services.refactoring.backend.server.query.namedquery#validateterms(java.util.set)
      */
     @Override
     public void validateTerms(final Set<ValueIndexTerm> queryTerms)

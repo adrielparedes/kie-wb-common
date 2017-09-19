@@ -29,7 +29,6 @@ import org.kie.workbench.common.services.refactoring.backend.server.query.builde
 import org.kie.workbench.common.services.refactoring.model.index.terms.valueterms.ValueIndexTerm.TermSearchType;
 import org.kie.workbench.common.services.refactoring.model.index.terms.valueterms.ValueReferenceIndexTerm;
 import org.kie.workbench.common.services.refactoring.service.ResourceType;
-import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.java.nio.file.Path;
 
 public class IndexDrlLHSTypeTest extends BaseIndexingTest<TestDrlFileTypeDefinition> {
@@ -38,48 +37,66 @@ public class IndexDrlLHSTypeTest extends BaseIndexingTest<TestDrlFileTypeDefinit
     public void testIndexDrlLHSType() throws IOException, InterruptedException {
         ioService().startBatch(ioService().getFileSystem(basePath.toUri()));
         //Add test files
-        final Path path1 = basePath.resolve( "drl1.drl" );
-        final String drl1 = loadText( "drl1.drl" );
-        ioService().write( path1,
-                           drl1 );
-        final Path path2 = basePath.resolve( "drl2.drl" );
-        final String drl2 = loadText( "drl2.drl" );
-        ioService().write( path2,
-                           drl2 );
-        final Path path3 = basePath.resolve( "drl3.drl" );
-        final String drl3 = loadText( "drl3.drl" );
-        ioService().write( path3,
-                           drl3 );
+        final Path path1 = basePath.resolve("drl1.drl");
+        final String drl1 = loadText("drl1.drl");
+        ioService().write(path1,
+                          drl1);
+        final Path path2 = basePath.resolve("drl2.drl");
+        final String drl2 = loadText("drl2.drl");
+        ioService().write(path2,
+                          drl2);
+        final Path path3 = basePath.resolve("drl3.drl");
+        final String drl3 = loadText("drl3.drl");
+        ioService().write(path3,
+                          drl3);
         ioService().endBatch();
 
-        Thread.sleep( 7000 ); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
-
-        final Index index = getConfig().getIndexManager().get( org.uberfire.ext.metadata.io.KObjectUtil.toKCluster( basePath.getFileSystem() ) );
+        Thread.sleep(7000); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
 
         //Check type extraction (with wildcards)
         {
-            final Query query = new SingleTermQueryBuilder( new ValueReferenceIndexTerm( "*.Applicant", ResourceType.JAVA, TermSearchType.WILDCARD ) ).build();
-            searchFor(index, query, 3, path1, path2, path3 );
+            final Query query = new SingleTermQueryBuilder(new ValueReferenceIndexTerm("*.Applicant",
+                                                                                       ResourceType.JAVA,
+                                                                                       TermSearchType.WILDCARD)).build();
+            searchFor(query,
+                      3,
+                      path1,
+                      path2,
+                      path3);
         }
 
         //Check type extraction (without wildcards)
         {
-            final Query query = new SingleTermQueryBuilder( new ValueReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant", ResourceType.JAVA ) ).build();
-            searchFor(index, query, 3, path1, path2, path3 );
+            final Query query = new SingleTermQueryBuilder(new ValueReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant",
+                                                                                       ResourceType.JAVA)).build();
+            searchFor(query,
+                      3,
+                      path1,
+                      path2,
+                      path3);
         }
 
         //Check type extraction (with wildcards)
         {
-            final Query query = new SingleTermQueryBuilder( new ValueReferenceIndexTerm( "*.Mortgage", ResourceType.JAVA, TermSearchType.WILDCARD ) ).build();
-            searchFor(index, query, 2, path2, path3 );
+            final Query query = new SingleTermQueryBuilder(new ValueReferenceIndexTerm("*.Mortgage",
+                                                                                       ResourceType.JAVA,
+                                                                                       TermSearchType.WILDCARD)).build();
+            searchFor(query,
+                      2,
+                      path2,
+                      path3);
         }
 
         //Check type extraction (without wildcards)
         {
-            final Query query = new SingleTermQueryBuilder( new ValueReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Mortgage", ResourceType.JAVA, TermSearchType.WILDCARD ) ).build();
-            searchFor(index, query, 2, path2, path3 );
+            final Query query = new SingleTermQueryBuilder(new ValueReferenceIndexTerm("org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Mortgage",
+                                                                                       ResourceType.JAVA,
+                                                                                       TermSearchType.WILDCARD)).build();
+            searchFor(query,
+                      2,
+                      path2,
+                      path3);
         }
-
     }
 
     @Override
@@ -101,5 +118,4 @@ public class IndexDrlLHSTypeTest extends BaseIndexingTest<TestDrlFileTypeDefinit
     protected String getRepositoryName() {
         return this.getClass().getSimpleName();
     }
-
 }

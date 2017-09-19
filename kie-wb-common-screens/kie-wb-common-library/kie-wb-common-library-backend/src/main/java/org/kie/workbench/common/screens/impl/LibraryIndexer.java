@@ -35,7 +35,7 @@ import org.kie.workbench.common.services.shared.project.KieProjectService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.backend.server.util.Paths;
-import org.uberfire.ext.metadata.backend.lucene.fields.FieldFactory;
+import org.uberfire.ext.metadata.backend.hibernate.model.FieldFactory;
 import org.uberfire.ext.metadata.model.KObject;
 import org.uberfire.ext.metadata.model.KObjectKey;
 import org.uberfire.ext.metadata.model.KProperty;

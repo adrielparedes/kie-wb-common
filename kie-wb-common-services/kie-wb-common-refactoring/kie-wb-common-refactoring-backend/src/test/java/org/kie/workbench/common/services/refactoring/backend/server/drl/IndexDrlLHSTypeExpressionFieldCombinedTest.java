@@ -28,7 +28,6 @@ import org.kie.workbench.common.services.refactoring.backend.server.TestIndexer;
 import org.kie.workbench.common.services.refactoring.backend.server.query.builder.SingleTermQueryBuilder;
 import org.kie.workbench.common.services.refactoring.model.index.terms.valueterms.ValuePartReferenceIndexTerm;
 import org.kie.workbench.common.services.refactoring.service.PartType;
-import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.java.nio.file.Path;
 
 public class IndexDrlLHSTypeExpressionFieldCombinedTest extends BaseIndexingTest<TestDrlFileTypeDefinition> {
@@ -53,16 +52,15 @@ public class IndexDrlLHSTypeExpressionFieldCombinedTest extends BaseIndexingTest
 
         Thread.sleep( 7000 ); //wait for events to be consumed from jgit -> (notify changes -> watcher -> index) -> lucene index
 
-        final Index index = getConfig().getIndexManager().get( org.uberfire.ext.metadata.io.KObjectUtil.toKCluster( basePath.getFileSystem() ) );
 
         {
             final Query query = new SingleTermQueryBuilder( new ValuePartReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Mortgage", "applicant", PartType.FIELD ) ).build();
-            searchFor(index, query, 2, path1, path2);
+            searchFor( query, 2, path1, path2);
         }
 
         {
             final Query query = new SingleTermQueryBuilder( new ValuePartReferenceIndexTerm( "org.kie.workbench.common.services.refactoring.backend.server.drl.classes.Applicant", "age", PartType.FIELD ) ).build();
-            searchFor(index, query, 3, path1, path2, path3);
+            searchFor( query, 3, path1, path2, path3);
         }
 
     }

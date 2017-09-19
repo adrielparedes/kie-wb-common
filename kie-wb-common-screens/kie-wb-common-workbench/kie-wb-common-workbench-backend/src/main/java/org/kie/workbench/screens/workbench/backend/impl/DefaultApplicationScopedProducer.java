@@ -36,7 +36,6 @@ import org.uberfire.commons.concurrent.Unmanaged;
 import org.uberfire.commons.services.cdi.Startup;
 import org.uberfire.commons.services.cdi.StartupType;
 import org.uberfire.ext.metadata.MetadataConfig;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
 import org.uberfire.ext.metadata.io.IOSearchServiceImpl;
 import org.uberfire.ext.metadata.io.IOServiceIndexedImpl;
 import org.uberfire.ext.metadata.search.IOSearchService;

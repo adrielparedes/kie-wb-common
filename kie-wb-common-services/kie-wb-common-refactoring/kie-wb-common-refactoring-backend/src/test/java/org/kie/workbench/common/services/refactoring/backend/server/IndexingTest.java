@@ -33,11 +33,9 @@ import java.util.concurrent.Executors;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.lucene.analysis.Analyzer;
-import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.guvnor.common.services.project.model.Package;
+import org.hibernate.search.spi.SearchIntegrator;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.kie.workbench.common.services.refactoring.backend.server.indexing.ImpactAnalysisAnalyzerWrapperFactory;
@@ -47,11 +45,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.uberfire.commons.async.DescriptiveThreadFactory;
 import org.uberfire.ext.metadata.CustomAnalyzerWrapperFactory;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfig;
-import org.uberfire.ext.metadata.backend.lucene.LuceneConfigBuilder;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndex;
-import org.uberfire.ext.metadata.backend.lucene.index.LuceneIndexManager;
-import org.uberfire.ext.metadata.backend.lucene.util.KObjectUtil;
+import org.uberfire.ext.metadata.MetadataConfig;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfig;
+import org.uberfire.ext.metadata.backend.hibernate.HibernateSearchConfigBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.IndexProvider;
+import org.uberfire.ext.metadata.backend.hibernate.index.providers.SearchIntegratorBuilder;
+import org.uberfire.ext.metadata.backend.hibernate.model.KObjectImpl;
+import org.uberfire.ext.metadata.backend.hibernate.preferences.HibernateSearchPreferences;
 import org.uberfire.ext.metadata.engine.Index;
 import org.uberfire.ext.metadata.io.IOServiceIndexedImpl;
 import org.uberfire.ext.metadata.io.IndexersFactory;
@@ -71,7 +71,7 @@ public abstract class IndexingTest<T extends ResourceTypeDefinition> {
     public static final String TEST_PACKAGE_NAME = "org.kie.workbench.mock.package";
     protected static final Logger logger = LoggerFactory.getLogger(IndexingTest.class);
     protected static final List<File> tempFiles = new ArrayList<File>();
-    private static LuceneConfig config;
+    private static MetadataConfig config;
     private IOService ioService = null;
 
     @AfterClass
@@ -86,7 +86,7 @@ public abstract class IndexingTest<T extends ResourceTypeDefinition> {
         }
     }
 
-    protected static LuceneConfig getConfig() {
+    protected static MetadataConfig getConfig() {
         return config;
     }
 
@@ -157,15 +157,15 @@ public abstract class IndexingTest<T extends ResourceTypeDefinition> {
     protected IOService ioService() {
         if (ioService == null) {
             final Map<String, Analyzer> analyzers = getAnalyzers();
-            LuceneConfigBuilder configBuilder = new LuceneConfigBuilder()
-                    .withInMemoryMetaModelStore()
+            SearchIntegrator searchIntegrator = new SearchIntegratorBuilder()
+                    .withPreferences(new HibernateSearchPreferences())
+                    .addClass(KObjectImpl.class)
+                    .build();
+
+            HibernateSearchConfigBuilder configBuilder = new HibernateSearchConfigBuilder()
+                    .withSearchIntegrator(searchIntegrator)
                     .usingAnalyzers(analyzers)
-                    .usingAnalyzerWrapperFactory(getAnalyzerWrapperFactory())
-                    .useInMemoryDirectory()
-                    // If you want to use Luke to inspect the index,
-                    // comment ".useInMemoryDirectory(), and uncomment below..
-//                     .useNIODirectory()
-                    .useDirectoryBasedIndex();
+                    .usingAnalyzerWrapperFactory(getAnalyzerWrapperFactory());
 
             if (config == null) {
                 config = configBuilder.build();
@@ -230,12 +230,11 @@ public abstract class IndexingTest<T extends ResourceTypeDefinition> {
         fail("Results do not contain expected Path '" + path.toUri().toString());
     }
 
-    public void searchFor(Index index,
-                          Query query,
+    public void searchFor(Query query,
                           int expectedNumHits,
                           Path... paths) throws IOException {
-        final IndexSearcher searcher = ((LuceneIndex) index).nrtSearcher();
-        searchFor(searcher,
+        IndexProvider indexProvider = ((HibernateSearchConfig) this.getConfig()).getIndexProvider();
+        searchFor(indexProvider,
                   query,
                   expectedNumHits,
                   paths);
@@ -243,37 +242,28 @@ public abstract class IndexingTest<T extends ResourceTypeDefinition> {
 
     public void searchFor(Query query,
                           int expectedNumHits) throws IOException {
-        final IndexSearcher searcher = ((LuceneIndexManager) getConfig().getIndexManager()).getIndexSearcher();
-        searchFor(searcher,
+        IndexProvider indexProvider = ((HibernateSearchConfig) this.getConfig()).getIndexProvider();
+        searchFor(indexProvider,
                   query,
                   expectedNumHits);
     }
 
-    private void searchFor(IndexSearcher searcher,
+    private void searchFor(IndexProvider indexProvider,
                            Query query,
                            int expectedNumHits,
                            Path... paths) throws IOException {
-        try {
-            final TopScoreDocCollector collector = TopScoreDocCollector.create(10 > expectedNumHits ? 10 : expectedNumHits);
-            searcher.search(query,
-                            collector);
-            final ScoreDoc[] hits = collector.topDocs().scoreDocs;
 
-            if (paths != null && paths.length > 0) {
-                final Set<KObject> results = new HashSet<>();
-                for (int i = 0; i < hits.length; i++) {
-                    results.add(KObjectUtil.toKObject(searcher.doc(hits[i].doc)));
-                }
-                assertEquals("Number of docs fulfilling the given query criteria",
-                             expectedNumHits,
-                             results.size());
-                for (Path path : paths) {
-                    assertContains(results,
-                                   path);
-                }
+        Set<KObject> results = new HashSet<>(indexProvider.findByQuery(KObjectImpl.class,
+                                                                       query));
+
+        if (paths != null && paths.length > 0) {
+            assertEquals("Number of docs fulfilling the given query criteria",
+                         expectedNumHits,
+                         results.size());
+            for (Path path : paths) {
+                assertContains(results,
+                               path);
             }
-        } finally {
-            ((LuceneIndexManager) getConfig().getIndexManager()).release(searcher);
         }
     }
 }
