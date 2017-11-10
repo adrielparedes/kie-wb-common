@@ -32,47 +32,48 @@ import org.kie.workbench.common.screens.library.client.widgets.project.NewAssetH
 import org.kie.workbench.common.screens.library.client.widgets.project.ProjectActionsWidget;
 import org.kie.workbench.common.widgets.client.handlers.NewResourceHandler;
 
-@Templated
+//@Templated
+@Deprecated
 public class EmptyProjectView implements EmptyProjectScreen.View,
                                          IsElement {
 
     private EmptyProjectScreen presenter;
 
-    @Inject
+    //    @Inject
     private ManagedInstance<NewAssetHandlerWidget> resourceHandlerWidgets;
 
-    @Inject
+    //    @Inject
     private ProjectActionsWidget projectActionsWidget;
 
-    @Inject
+    //    @Inject
     private AssetsActionsWidget assetsActionsWidget;
 
-    @Inject
-    @DataField("project-toolbar")
+    //    @Inject
+//    @DataField("project-toolbar")
     Div projectToolbar;
 
-    @Inject
-    @DataField("assets-toolbar")
+    //    @Inject
+//    @DataField("assets-toolbar")
     Div assetsToolbar;
 
-    @Inject
-    @DataField("details-container")
+    //    @Inject
+//    @DataField("details-container")
     Div detailsContainer;
 
-    @Inject
-    @DataField("resource-handler-container")
+    //    @Inject
+//    @DataField("resource-handler-container")
     Div resourceHandlerContainer;
 
-    @Inject
-    @DataField("browse-more-types")
+    //    @Inject
+//    @DataField("browse-more-types")
     Anchor browseMoreTypes;
 
-    @Inject
-    @DataField("project-name")
+    //    @Inject
+//    @DataField("project-name")
     Div projectNameContainer;
 
-    @Inject
-    @DataField("uploader")
+    //    @Inject
+//    @DataField("uploader")
     Anchor uploader;
 
     @Override
@@ -105,14 +106,16 @@ public class EmptyProjectView implements EmptyProjectScreen.View,
         resourceHandlerContainer.appendChild(newAssetHandlerWidget.getElement());
     }
 
-    @EventHandler("browse-more-types")
+    //    @EventHandler("browse-more-types")
     public void browseMoreTypes(final ClickEvent clickEvent) {
         resourceHandlerContainer.getClassList().remove("retracted");
         browseMoreTypes.setHidden(true);
     }
 
-    @EventHandler("uploader")
+    //    @EventHandler("uploader")
     public void upload(final ClickEvent clickEvent) {
         presenter.getUploadHandler().getCommand(presenter.getNewResourcePresenter()).execute();
     }
 }
+
+

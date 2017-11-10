@@ -38,7 +38,8 @@ import static org.kie.workbench.common.screens.library.client.util.ResourceUtils
 import static org.kie.workbench.common.screens.library.client.util.ResourceUtils.isProjectHandler;
 import static org.kie.workbench.common.screens.library.client.util.ResourceUtils.isUploadHandler;
 
-@WorkbenchScreen(identifier = LibraryPlaces.EMPTY_PROJECT_SCREEN)
+@Deprecated
+//@WorkbenchScreen(identifier = LibraryPlaces.EMPTY_PROJECT_SCREEN)
 public class EmptyProjectScreen {
 
     public interface View extends UberElement<EmptyProjectScreen> {
@@ -66,7 +67,7 @@ public class EmptyProjectScreen {
 
     ProjectInfo projectInfo;
 
-    @Inject
+    //    @Inject
     public EmptyProjectScreen(final View view,
                               final ResourceUtils resourceUtils,
                               final NewResourcePresenter newResourcePresenter,
@@ -120,13 +121,13 @@ public class EmptyProjectScreen {
         return newResourcePresenter;
     }
 
-    @WorkbenchPartTitle
-    public String getTitle() {
-        return "Empty Project Screen";
-    }
-
-    @WorkbenchPartView
-    public UberElement<EmptyProjectScreen> getView() {
-        return view;
-    }
+//    @WorkbenchPartTitle
+//    public String getTitle() {
+//        return "Empty Project Screen";
+//    }
+//
+//    @WorkbenchPartView
+//    public UberElement<EmptyProjectScreen> getView() {
+//        return view;
+//    }
 }

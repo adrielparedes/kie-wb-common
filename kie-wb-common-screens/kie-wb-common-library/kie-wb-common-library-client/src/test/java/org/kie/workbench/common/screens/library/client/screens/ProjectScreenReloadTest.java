@@ -118,7 +118,7 @@ public class ProjectScreenReloadTest
                                 FolderItemType.FILE,
                                 "file2.txt"));
 
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
 
         verify(view,
                never()).showIndexingIncomplete();
@@ -132,7 +132,7 @@ public class ProjectScreenReloadTest
 
         when(view.getFilterValue()).thenReturn("my asset");
 
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
 
         verify(view,
                never()).showIndexingIncomplete();
@@ -147,7 +147,7 @@ public class ProjectScreenReloadTest
 
         when(view.getFirstIndex()).thenReturn(15);
 
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
 
         verify(view,
                never()).showIndexingIncomplete();
@@ -165,7 +165,7 @@ public class ProjectScreenReloadTest
         when(view.getFilterValue()).thenReturn("some asset");
         when(view.getFirstIndex()).thenReturn(15);
 
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
 
         verify(view,
                never()).showIndexingIncomplete();
@@ -182,7 +182,7 @@ public class ProjectScreenReloadTest
 
         when(view.getStep()).thenReturn(3);
 
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
 
         assertEquals(3,
                      numberOfCalls);
@@ -191,7 +191,7 @@ public class ProjectScreenReloadTest
     @Test
     public void reloadOnEmptyList() throws Exception {
 
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
 
         verify(view,
                atLeastOnce()).showIndexingIncomplete();

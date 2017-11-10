@@ -99,7 +99,7 @@ public class ProjectScreenSequentialLoadRequestTest
 
         //This invokes the first request to load the asset list with a filter "a"
         when(view.getFilterValue()).thenReturn("a");
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
 
         verify(libraryService,
                times(2)).getProjectAssets(queryCaptor.capture());

@@ -84,7 +84,7 @@ public class ProjectScreenTest
         doReturn(true).when(projectController).canUpdateProject(any());
 
         projectInfo = createProjectInfo();
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
     }
 
     @Test
@@ -115,7 +115,7 @@ public class ProjectScreenTest
         when(view.getStep()).thenReturn(15);
         doReturn(false).when(projectController).canUpdateProject(any());
 
-        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
+//        projectScreen.onStartup(new ProjectDetailEvent(projectInfo));
 
         verify(view,
                never()).setupAssetsActions();
@@ -126,7 +126,7 @@ public class ProjectScreenTest
         final PlaceRequest place = new DefaultPlaceRequest(LibraryPlaces.PROJECT_SCREEN);
         final PlaceGainFocusEvent placeGainFocusEvent = new PlaceGainFocusEvent(place);
 
-        projectScreen.refreshOnFocus(placeGainFocusEvent);
+//        projectScreen.refreshOnFocus(placeGainFocusEvent);
 
         verify(busyIndicatorView,
                times(2)).showBusyIndicator(anyString());
@@ -152,7 +152,7 @@ public class ProjectScreenTest
         final PlaceRequest place = new DefaultPlaceRequest("anotherScreen");
         final PlaceGainFocusEvent placeGainFocusEvent = new PlaceGainFocusEvent(place);
 
-        projectScreen.refreshOnFocus(placeGainFocusEvent);
+//        projectScreen.refreshOnFocus(placeGainFocusEvent);
 
         verify(busyIndicatorView,
                times(1)).showBusyIndicator(anyString());

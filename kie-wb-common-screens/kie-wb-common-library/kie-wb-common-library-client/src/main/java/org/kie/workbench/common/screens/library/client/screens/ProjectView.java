@@ -36,50 +36,51 @@ import org.kie.workbench.common.screens.library.client.widgets.project.AssetsAct
 import org.kie.workbench.common.screens.library.client.widgets.project.ProjectActionsWidget;
 import org.uberfire.mvp.Command;
 
-@Templated
+@Deprecated
+//@Templated
 public class ProjectView
         implements ProjectScreen.View,
                    IsElement {
 
-    @Inject
-    @DataField("project-toolbar")
+    //    @Inject
+//    @DataField("project-toolbar")
     Div projectToolbar;
 
-    @Inject
-    @DataField("assets-toolbar")
+    //    @Inject
+//    @DataField("assets-toolbar")
     Div assetsToolbar;
 
-    @Inject
-    @DataField("details-container")
+    //    @Inject
+//    @DataField("details-container")
     Div detailsContainer;
 
-    @Inject
-    @DataField("filter-text")
+    //    @Inject
+//    @DataField("filter-text")
     Input filterText;
 
-    @Inject
-    @DataField("project-name")
+    //    @Inject
+//    @DataField("project-name")
     Div projectNameContainer;
 
-    @Inject
-    @DataField
+    //    @Inject
+//    @DataField
     Div assetListContainer;
 
     private ProjectScreen presenter;
 
-    @Inject
+    //    @Inject
     private ProjectsDetailScreen projectsDetailScreen;
 
-    @Inject
+    //    @Inject
     private ManagedInstance<AssetItemWidget> itemWidgetsInstances;
 
-    @Inject
+    //    @Inject
     private TranslationService ts;
 
-    @Inject
+    //    @Inject
     private ProjectActionsWidget projectActionsWidget;
 
-    @Inject
+    //    @Inject
     private AssetsActionsWidget assetsActionsWidget;
 
     private AssetList assetList;
@@ -87,7 +88,7 @@ public class ProjectView
     public ProjectView() {
     }
 
-    @Inject
+    //    @Inject
     public ProjectView(final AssetList assetList) {
         this.assetList = assetList;
     }
@@ -189,8 +190,8 @@ public class ProjectView
         this.filterText.setValue(name);
     }
 
-    @SinkNative(Event.ONKEYUP)
-    @EventHandler("filter-text")
+    //    @SinkNative(Event.ONKEYUP)
+//    @EventHandler("filter-text")
     public void onFilterTextChange(Event e) {
         presenter.onFilterChange();
     }

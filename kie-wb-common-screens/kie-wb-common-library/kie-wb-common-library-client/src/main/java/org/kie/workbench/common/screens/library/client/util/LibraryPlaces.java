@@ -68,7 +68,6 @@ import org.uberfire.ext.preferences.client.event.PreferencesCentralUndoChangesEv
 import org.uberfire.ext.widgets.common.client.breadcrumbs.UberfireBreadcrumbs;
 import org.uberfire.mvp.Command;
 import org.uberfire.mvp.PlaceRequest;
-import org.uberfire.mvp.impl.ConditionalPlaceRequest;
 import org.uberfire.mvp.impl.DefaultPlaceRequest;
 import org.uberfire.mvp.impl.PathPlaceRequest;
 import org.uberfire.preferences.shared.impl.PreferenceScopeResolutionStrategyInfo;
@@ -599,40 +598,70 @@ public class LibraryPlaces {
     public void goToProject(final ProjectInfo projectInfo,
                             final boolean fireProjectContextChangeEvent,
                             final Command callback) {
-        libraryService.call(hasAssets -> {
-            final PlaceRequest projectScreen = new ConditionalPlaceRequest(LibraryPlaces.PROJECT_SCREEN)
-                    .when(p -> (Boolean) hasAssets)
-                    .orElse(new DefaultPlaceRequest(LibraryPlaces.EMPTY_PROJECT_SCREEN));
-            final PartDefinitionImpl part = new PartDefinitionImpl(projectScreen);
-            part.setSelectable(false);
 
-            boolean goToProject = true;
-            if (!projectInfo.getProject().equals(lastViewedProject)) {
-                goToProject = closeAllPlacesOrNothing();
+        final DefaultPlaceRequest projectScreen = new DefaultPlaceRequest(LibraryPlaces.PROJECT_SCREEN);
+        final PartDefinitionImpl part = new PartDefinitionImpl(projectScreen);
+        part.setSelectable(false);
+        boolean goToProject = true;
+        if (!projectInfo.getProject().equals(lastViewedProject)) {
+            goToProject = closeAllPlacesOrNothing();
+        }
+        if (goToProject) {
+            closeLibraryPlaces();
+            hideDocks();
+            lastViewedProject = projectInfo.getProject();
+            if (fireProjectContextChangeEvent) {
+                projectContextChangeEvent.fire(new ProjectContextChangeEvent(projectInfo.getOrganizationalUnit(),
+                                                                             projectInfo.getRepository(),
+                                                                             projectInfo.getBranch(),
+                                                                             projectInfo.getProject()));
             }
 
-            if (goToProject) {
-                closeLibraryPlaces();
-                hideDocks();
-                lastViewedProject = projectInfo.getProject();
-                if (fireProjectContextChangeEvent) {
-                    projectContextChangeEvent.fire(new ProjectContextChangeEvent(projectInfo.getOrganizationalUnit(),
-                                                                                 projectInfo.getRepository(),
-                                                                                 projectInfo.getBranch(),
-                                                                                 projectInfo.getProject()));
-                }
+            placeManager.goTo(part,
+                              libraryPerspective.getRootPanel());
 
-                placeManager.goTo(part,
-                                  libraryPerspective.getRootPanel());
+            setupLibraryBreadCrumbsForProject(projectInfo);
+            projectDetailEvent.fire(new ProjectDetailEvent(projectInfo));
 
-                setupLibraryBreadCrumbsForProject(projectInfo);
-                projectDetailEvent.fire(new ProjectDetailEvent(projectInfo));
-
-                if (callback != null) {
-                    callback.execute();
-                }
+            if (callback != null) {
+                callback.execute();
             }
-        }).hasAssets(projectInfo.getProject());
+        }
+
+//        libraryService.call(hasAssets -> {
+//            final PlaceRequest projectScreen = new ConditionalPlaceRequest(LibraryPlaces.PROJECT_SCREEN)
+//                    .when(p -> (Boolean) hasAssets)
+//                    .orElse(new DefaultPlaceRequest(LibraryPlaces.EMPTY_PROJECT_SCREEN));
+//            final PartDefinitionImpl part = new PartDefinitionImpl(projectScreen);
+//            part.setSelectable(false);
+//
+//            boolean goToProject = true;
+//            if (!projectInfo.getProject().equals(lastViewedProject)) {
+//                goToProject = closeAllPlacesOrNothing();
+//            }
+//
+//            if (goToProject) {
+//                closeLibraryPlaces();
+//                hideDocks();
+//                lastViewedProject = projectInfo.getProject();
+//                if (fireProjectContextChangeEvent) {
+//                    projectContextChangeEvent.fire(new ProjectContextChangeEvent(projectInfo.getOrganizationalUnit(),
+//                                                                                 projectInfo.getRepository(),
+//                                                                                 projectInfo.getBranch(),
+//                                                                                 projectInfo.getProject()));
+//                }
+//
+//                placeManager.goTo(part,
+//                                  libraryPerspective.getRootPanel());
+//
+//                setupLibraryBreadCrumbsForProject(projectInfo);
+//                projectDetailEvent.fire(new ProjectDetailEvent(projectInfo));
+//
+//                if (callback != null) {
+//                    callback.execute();
+//                }
+//            }
+//        }).hasAssets(projectInfo.getProject());
     }
 
     public void goToOrgUnitsMetrics() {
