@@ -18,6 +18,7 @@ package org.kie.workbench.common.screens.library.client.screens.organizationalun
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import javax.annotation.PostConstruct;
 import javax.enterprise.event.Event;
 import javax.inject.Inject;
@@ -30,6 +31,8 @@ import org.guvnor.structure.organizationalunit.OrganizationalUnitService;
 import org.guvnor.structure.repositories.Repository;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.api.RemoteCallback;
+import org.jboss.errai.common.client.dom.HTMLElement;
+import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.widget.ContributorsManagementPresenter;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.ext.widgets.common.client.callbacks.HasBusyIndicatorDefaultErrorCallback;
 import org.uberfire.ext.widgets.common.client.common.HasBusyIndicator;
@@ -41,9 +44,7 @@ public class OrganizationalUnitPopUpPresenter {
     public interface View extends UberElement<OrganizationalUnitPopUpPresenter>,
                                   HasBusyIndicator {
 
-        void showAddPopUp();
-
-        void showEditPopUp(OrganizationalUnit organizationalUnit);
+        void show();
 
         void hide();
 
@@ -52,10 +53,6 @@ public class OrganizationalUnitPopUpPresenter {
         void showError(final String errorMessage);
 
         String getName();
-
-        String getDefaultGroupId();
-
-        String getOwner();
 
         String getEmptyNameValidationMessage();
 
@@ -70,6 +67,8 @@ public class OrganizationalUnitPopUpPresenter {
         String getSaveSuccessMessage();
 
         String getInvalidNameValidationMessage();
+
+        void append(HTMLElement child);
     }
 
     private View view;
@@ -84,6 +83,8 @@ public class OrganizationalUnitPopUpPresenter {
 
     private OrganizationalUnitController organizationalUnitController;
 
+    private ContributorsManagementPresenter contributorsManagementPresenter;
+
     private OrganizationalUnit organizationalUnit;
 
     @Inject
@@ -92,13 +93,15 @@ public class OrganizationalUnitPopUpPresenter {
                                             final Event<AfterCreateOrganizationalUnitEvent> afterCreateOrganizationalUnitEvent,
                                             final Event<AfterEditOrganizationalUnitEvent> afterEditOrganizationalUnitEvent,
                                             final Event<NotificationEvent> notificationEvent,
-                                            final OrganizationalUnitController organizationalUnitController) {
+                                            final OrganizationalUnitController organizationalUnitController,
+                                            final ContributorsManagementPresenter contributorsManagementPresenter) {
         this.view = view;
         this.organizationalUnitService = organizationalUnitService;
         this.afterCreateOrganizationalUnitEvent = afterCreateOrganizationalUnitEvent;
         this.afterEditOrganizationalUnitEvent = afterEditOrganizationalUnitEvent;
         this.notificationEvent = notificationEvent;
         this.organizationalUnitController = organizationalUnitController;
+        this.contributorsManagementPresenter = contributorsManagementPresenter;
     }
 
     @PostConstruct
@@ -106,53 +109,24 @@ public class OrganizationalUnitPopUpPresenter {
         view.init(this);
     }
 
-    public void showAddPopUp() {
+    public void show() {
         if (organizationalUnitController.canCreateOrgUnits()) {
+            contributorsManagementPresenter.setup();
+            view.append(contributorsManagementPresenter.getView().getElement());
             view.clear();
-            view.showAddPopUp();
-        }
-    }
-
-    public void showEditPopUp(final OrganizationalUnit organizationalUnit) {
-        if (organizationalUnitController.canUpdateOrgUnit(organizationalUnit)) {
-            view.showEditPopUp(organizationalUnit);
-            this.organizationalUnit = organizationalUnit;
+            view.show();
         }
     }
 
     public void save() {
         final String name = view.getName();
-        final String defaultGroupId = view.getDefaultGroupId();
-        final String owner = view.getOwner();
+        final String defaultGroupId = "com." + view.getName().toLowerCase();
+        final String owner = "mocked_user";
 
         view.showBusyIndicator(view.getSavingMessage());
-        validateFields(() -> {
-            if (organizationalUnit == null) {
-                saveCreation(name,
-                             defaultGroupId,
-                             owner);
-            } else {
-                saveEdition(name,
-                            defaultGroupId,
-                            owner);
-            }
-        });
-    }
-
-    void saveEdition(String name,
-                     String defaultGroupId,
-                     String owner) {
-        organizationalUnitService.call((OrganizationalUnit newOrganizationalUnit) -> {
-                                           afterEditOrganizationalUnitEvent.fire(new AfterEditOrganizationalUnitEvent(OrganizationalUnitPopUpPresenter.this.organizationalUnit,
-                                                                                                                      newOrganizationalUnit));
-                                           view.hideBusyIndicator();
-                                           notificationEvent.fire(new NotificationEvent(view.getSaveSuccessMessage(),
-                                                                                        NotificationEvent.NotificationType.SUCCESS));
-                                           view.hide();
-                                       },
-                                       new HasBusyIndicatorDefaultErrorCallback(view)).updateOrganizationalUnit(name,
-                                                                                                                owner,
-                                                                                                                defaultGroupId);
+        validateFields(() -> saveCreation(name,
+                                          defaultGroupId,
+                                          owner));
     }
 
     void saveCreation(final String name,
@@ -160,6 +134,7 @@ public class OrganizationalUnitPopUpPresenter {
                       final String owner) {
         final Command saveCommand = () -> {
             final Collection<Repository> repositories = new ArrayList<>();
+            final List<String> contributors = contributorsManagementPresenter.getSelectedContributorsUserNames();
 
             final RemoteCallback<OrganizationalUnit> successCallback = (OrganizationalUnit newOrganizationalUnit) -> {
                 afterCreateOrganizationalUnitEvent.fire(new AfterCreateOrganizationalUnitEvent(newOrganizationalUnit));
@@ -175,7 +150,8 @@ public class OrganizationalUnitPopUpPresenter {
                                            errorCallback).createOrganizationalUnit(name,
                                                                                    owner,
                                                                                    defaultGroupId,
-                                                                                   repositories);
+                                                                                   repositories,
+                                                                                   contributors);
         };
 
         validateDuplicatedOrganizationalUnit(name,
@@ -190,12 +166,7 @@ public class OrganizationalUnitPopUpPresenter {
             return;
         }
 
-        final String defaultGroupId = view.getDefaultGroupId();
-        if (isEmpty(defaultGroupId)) {
-            view.hideBusyIndicator();
-            view.showError(view.getEmptyDefaultGroupIdValidationMessage());
-            return;
-        }
+        final String defaultGroupId = "com." + view.getName().toLowerCase();
 
         organizationalUnitService.call((Boolean valid) -> {
                                            if (!valid) {

@@ -20,10 +20,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 import java.util.function.IntFunction;
 import java.util.function.Supplier;
-
 import javax.annotation.PostConstruct;
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
@@ -31,10 +29,8 @@ import javax.inject.Named;
 
 import org.apache.lucene.search.IndexSearcher;
 import org.apache.lucene.search.Query;
-import org.apache.lucene.search.ScoreDoc;
 import org.apache.lucene.search.Sort;
 import org.apache.lucene.search.TopFieldDocs;
-import org.apache.lucene.search.TopScoreDocCollector;
 import org.apache.lucene.search.TotalHitCountCollector;
 import org.jboss.errai.bus.server.annotations.Service;
 import org.kie.soup.commons.validation.PortablePreconditions;
@@ -89,6 +85,36 @@ public class RefactoringQueryServiceImpl implements RefactoringQueryService {
 
     public Set<String> getQueries() {
         return namedQueries.getQueries();
+    }
+
+    @Override
+    public int queryHitCount(final RefactoringPageRequest request) {
+        PortablePreconditions.checkNotNull("request",
+                                           request);
+        final String queryName = PortablePreconditions.checkNotNull("queryName",
+                                                                    request.getQueryName());
+        final NamedQuery namedQuery = namedQueries.findNamedQuery(queryName);
+
+        //Validate provided terms against those required for the named query
+        namedQuery.validateTerms(request.getQueryTerms());
+
+        final Query query = namedQuery.toQuery(request.getQueryTerms());
+
+        final LuceneIndexManager indexManager = ((LuceneIndexManager) config.getIndexManager());
+        final IndexSearcher index = indexManager.getIndexSearcher();
+
+        try {
+            final TotalHitCountCollector totalHitCountCollector = new TotalHitCountCollector();
+            index.search(query,
+                         totalHitCountCollector);
+
+            return totalHitCountCollector.getTotalHits();
+        } catch (final Exception ex) {
+            throw new RuntimeException("Error during Query!",
+                                       ex);
+        } finally {
+            indexManager.release(index);
+        }
     }
 
     @Override
