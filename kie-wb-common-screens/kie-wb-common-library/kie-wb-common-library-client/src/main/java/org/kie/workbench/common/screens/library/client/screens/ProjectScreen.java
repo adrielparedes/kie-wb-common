@@ -132,23 +132,23 @@ public class ProjectScreen {
         this.projectController = projectController;
     }
 
-//    public void onStartup(@Observes final ProjectDetailEvent projectDetailEvent) {
-//        this.projectInfo = projectDetailEvent.getProjectInfo();
-//        loadProjectInfo();
-//        view.setProjectName(projectInfo.getProject().getProjectName());
-//        view.setProjectDetails(projectsDetailScreen.getView());
-//
-//        if (projectController.canUpdateProject(projectInfo.getProject())) {
-//            view.setupAssetsActions();
-//        }
-//    }
-//
-//    public void refreshOnFocus(@Observes final PlaceGainFocusEvent placeGainFocusEvent) {
-//        final PlaceRequest place = placeGainFocusEvent.getPlace();
-//        if (projectInfo != null && place.getIdentifier().equals(LibraryPlaces.PROJECT_SCREEN)) {
-//            loadProjectInfo();
-//        }
-//    }
+    public void onStartup(@Observes final ProjectDetailEvent projectDetailEvent) {
+        this.projectInfo = projectDetailEvent.getProjectInfo();
+        loadProjectInfo();
+        view.setProjectName(projectInfo.getProject().getProjectName());
+        view.setProjectDetails(projectsDetailScreen.getView());
+
+        if (projectController.canUpdateProject(projectInfo.getProject())) {
+            view.setupAssetsActions();
+        }
+    }
+
+    public void refreshOnFocus(@Observes final PlaceGainFocusEvent placeGainFocusEvent) {
+        final PlaceRequest place = placeGainFocusEvent.getPlace();
+        if (projectInfo != null && place.getIdentifier().equals(LibraryPlaces.PROJECT_SCREEN)) {
+            loadProjectInfo();
+        }
+    }
 
     protected Timer createTimer() {
         return new Timer() {

@@ -102,6 +102,15 @@ public class ProjectMetricsScreen {
 
         this.projectInfo = event.getProjectInfo();
 
+        buildMetrics(this.projectInfo);
+    }
+
+    public void onStartup(ProjectInfo projectInfo) {
+        this.projectInfo = projectInfo;
+        this.buildMetrics(projectInfo);
+    }
+
+    private void buildMetrics(ProjectInfo projectInfo) {
         this.commitsOverTimeDisplayer = metricsFactory.lookupCommitsOverTimeDisplayer(projectInfo);
         this.commitsPerAuthorDisplayer = metricsFactory.lookupCommitsPerAuthorDisplayer(projectInfo);
         this.commitsByYearDisplayer = metricsFactory.lookupCommitsByYearDisplayer(projectInfo);

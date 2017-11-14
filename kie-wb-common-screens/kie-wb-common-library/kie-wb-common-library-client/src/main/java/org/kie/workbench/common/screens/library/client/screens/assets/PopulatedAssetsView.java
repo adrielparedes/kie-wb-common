@@ -18,32 +18,28 @@ package org.kie.workbench.common.screens.library.client.screens.assets;
 
 import javax.inject.Inject;
 
-import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
-import org.uberfire.client.mvp.UberElemental;
+import elemental2.dom.HTMLDivElement;
+import elemental2.dom.HTMLElement;
+import org.jboss.errai.ui.client.local.api.elemental2.IsElement;
+import org.jboss.errai.ui.shared.api.annotations.DataField;
+import org.jboss.errai.ui.shared.api.annotations.Templated;
 
-public class EmptyAssetsScreen {
-
-    public interface View extends UberElemental<EmptyAssetsScreen> {
-
-    }
-
-    private EmptyAssetsScreen.View view;
-    private LibraryPlaces libraryPlaces;
+@Templated
+public class PopulatedAssetsView implements PopulatedAssetsScreen.View,
+                                            IsElement {
 
     @Inject
-    public EmptyAssetsScreen(final EmptyAssetsScreen.View view,
-                             final LibraryPlaces libraryPlaces) {
-        this.view = view;
-        this.libraryPlaces = libraryPlaces;
+    @DataField("assets-list")
+    HTMLDivElement assetsList;
+
+    private PopulatedAssetsScreen presenter;
+
+    @Override
+    public void init(PopulatedAssetsScreen presenter) {
+        this.presenter = presenter;
     }
 
-    public EmptyAssetsScreen.View getView() {
-        return view;
-    }
-
-    public void importAsset() {
-    }
-
-    public void addAsset() {
+    public void addAsset(HTMLElement asset) {
+        this.assetsList.appendChild(asset);
     }
 }

@@ -18,39 +18,32 @@ package org.kie.workbench.common.screens.library.client.screens.assets;
 
 import javax.inject.Inject;
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import elemental2.dom.HTMLButtonElement;
+import elemental2.dom.HTMLDivElement;
+import elemental2.dom.HTMLElement;
 import org.jboss.errai.ui.client.local.api.elemental2.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
-import org.jboss.errai.ui.shared.api.annotations.EventHandler;
 import org.jboss.errai.ui.shared.api.annotations.Templated;
 
 @Templated
-public class EmptyAssetsView implements IsElement,
-                                        EmptyAssetsScreen.View {
+public class AssetsView implements AssetsScreen.View,
+                                   IsElement {
+
+    private AssetsScreen presenter;
 
     @Inject
-    @DataField("add-asset")
-    HTMLButtonElement addAsset;
-
-    @Inject
-    @DataField("import-asset")
-    HTMLButtonElement importAsset;
-
-    private EmptyAssetsScreen presenter;
+    @DataField("assets-container")
+    HTMLDivElement content;
 
     @Override
-    public void init(EmptyAssetsScreen presenter) {
+    public void init(AssetsScreen presenter) {
         this.presenter = presenter;
     }
 
-    @EventHandler("import-asset")
-    public void clickImportAsset(final ClickEvent clickEvent) {
-        this.presenter.importAsset();
-    }
-
-    @EventHandler("add-asset")
-    public void clickAddAsset(final ClickEvent clickEvent) {
-        this.presenter.addAsset();
+    @Override
+    public void setContent(HTMLElement element) {
+        this.content.textContent = "";
+        if (element != null) {
+            this.content.appendChild(element);
+        }
     }
 }
