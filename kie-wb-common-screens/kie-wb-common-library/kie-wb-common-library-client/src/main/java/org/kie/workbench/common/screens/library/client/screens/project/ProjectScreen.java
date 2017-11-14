@@ -16,11 +16,16 @@
 
 package org.kie.workbench.common.screens.library.client.screens.project;
 
+import javax.annotation.PostConstruct;
 import javax.inject.Inject;
 
 import elemental2.dom.HTMLElement;
+import jsinterop.base.Js;
+import org.jboss.errai.common.client.api.Caller;
+import org.kie.workbench.common.screens.library.api.LibraryService;
 import org.kie.workbench.common.screens.library.client.perspective.LibraryPerspective;
 import org.kie.workbench.common.screens.library.client.screens.assets.EmptyAssetsScreen;
+import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.tab.ContributorsListPresenter;
 import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
 import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
@@ -31,9 +36,6 @@ import org.uberfire.client.mvp.UberElemental;
         owningPerspective = LibraryPerspective.class)
 public class ProjectScreen {
 
-    private final LibraryPlaces libraryPlaces;
-    private EmptyAssetsScreen emptyAssetsScreen;
-
     public interface View extends UberElemental<ProjectScreen> {
 
         void setAssetsCount(int count);
@@ -41,33 +43,76 @@ public class ProjectScreen {
         void setContributorsCount(int count);
 
         void setContent(HTMLElement content);
+
+        void setTitle(String projectName);
     }
 
+    private final LibraryPlaces libraryPlaces;
+    private EmptyAssetsScreen emptyAssetsScreen;
+    private ContributorsListPresenter contributorsListScreen;
+    private ProjectMetricsScreen projectMetricsScreen;
+    private Caller<LibraryService> libraryService;
     private ProjectScreen.View view;
 
     @Inject
     public ProjectScreen(final View view,
                          final LibraryPlaces libraryPlaces,
-                         final EmptyAssetsScreen emptyAssetsScreen) {
+                         final EmptyAssetsScreen emptyAssetsScreen,
+                         final ContributorsListPresenter contributorsListScreen,
+                         final ProjectMetricsScreen projectMetricsScreen,
+                         final Caller<LibraryService> libraryService) {
         this.view = view;
         this.libraryPlaces = libraryPlaces;
         this.emptyAssetsScreen = emptyAssetsScreen;
+        this.contributorsListScreen = contributorsListScreen;
+        this.projectMetricsScreen = projectMetricsScreen;
+        this.libraryService = libraryService;
+    }
+
+    @PostConstruct
+    public void initialize() {
+        this.view.init(this);
+        this.view.setTitle(libraryPlaces.getProjectInfo().getProject().getProjectName());
+        this.view.setAssetsCount(libraryPlaces.getProjectInfo().getProject().getNumberOfAssets());
+        this.view.setContributorsCount(this.contributorsListScreen.getContributorsCount());
+        this.showAssets();
     }
 
     public void showAssets() {
+
+//        libraryService.call((RemoteCallback<List<AssetInfo>>) assetsList -> {
+//
+//            assets = assetsList;
+//
+//            setupAssets(assets);
+//
+//            busyIndicatorView.hideBusyIndicator();
+//
+//            isProjectLoadInProgress = false;
+//
+//            if (isProjectLoadPending) {
+//                isProjectLoadPending = false;
+//                loadProjectInfo();
+//            } else {
+//                reloader.check(assetsList);
+//            }
+//        }).getProjectAssets(new ProjectAssetsQuery(projectInfo.getProject(),
+//                                                   view.getFilterValue(),
+//                                                   view.getFirstIndex(),
+//                                                   view.getStep()));
         this.view.setContent(this.emptyAssetsScreen.getView().getElement());
     }
 
     public void showMetrics() {
-
+        this.view.setContent(Js.cast(this.projectMetricsScreen.getView().getElement()));
     }
 
     public void showContributors() {
-
+        this.view.setContent(Js.cast(this.contributorsListScreen.getView().getElement()));
     }
 
     public void showSettings() {
-
+        this.view.setContent(new HTMLElement());
     }
 
     @WorkbenchPartTitle

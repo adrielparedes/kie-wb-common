@@ -35,12 +35,6 @@ public class EmptyAssetsScreen {
         this.view = view;
     }
 
-    @WorkbenchPartTitle
-    public String getTitle() {
-        return "Empty Assets Screen";
-    }
-
-    @WorkbenchPartView
     public EmptyAssetsScreen.View getView() {
         return view;
     }

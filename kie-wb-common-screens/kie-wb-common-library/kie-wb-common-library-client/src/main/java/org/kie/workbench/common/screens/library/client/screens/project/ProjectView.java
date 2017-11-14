@@ -17,12 +17,13 @@
 package org.kie.workbench.common.screens.library.client.screens.project;
 
 import javax.inject.Inject;
+import javax.inject.Named;
 
 import com.google.gwt.event.dom.client.ClickEvent;
 import elemental2.dom.HTMLAnchorElement;
 import elemental2.dom.HTMLDivElement;
 import elemental2.dom.HTMLElement;
-import elemental2.dom.HTMLOListElement;
+import elemental2.dom.HTMLLIElement;
 import org.jboss.errai.ui.client.local.api.elemental2.IsElement;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
 import org.jboss.errai.ui.shared.api.annotations.EventHandler;
@@ -36,12 +37,16 @@ public class ProjectView implements ProjectScreen.View,
     private ProjectScreen presenter;
 
     @Inject
+    @DataField("title")
+    HTMLDivElement title;
+
+    @Inject
     @DataField("assets-link")
     HTMLAnchorElement assetsTabLink;
 
     @Inject
     @DataField("assets-tab")
-    HTMLOListElement assetsTabItem;
+    HTMLLIElement assetsTabItem;
 
     @Inject
     @DataField("contributors-link")
@@ -49,7 +54,7 @@ public class ProjectView implements ProjectScreen.View,
 
     @Inject
     @DataField("contributors-tab")
-    HTMLOListElement contributorsTabItem;
+    HTMLLIElement contributorsTabItem;
 
     @Inject
     @DataField("metrics-link")
@@ -57,7 +62,7 @@ public class ProjectView implements ProjectScreen.View,
 
     @Inject
     @DataField("metrics-tab")
-    HTMLOListElement metricsTabItem;
+    HTMLLIElement metricsTabItem;
 
     @Inject
     @DataField("settings-link")
@@ -65,17 +70,19 @@ public class ProjectView implements ProjectScreen.View,
 
     @Inject
     @DataField("settings-tab")
-    HTMLOListElement settingsTabItem;
+    HTMLLIElement settingsTabItem;
 
     @Inject
     @DataField("main-container")
     HTMLDivElement mainContainer;
 
     @Inject
+    @Named("span")
     @DataField("assets-count")
     HTMLElement assetsCount;
 
     @Inject
+    @Named("span")
     @DataField("contributors-count")
     HTMLElement contributorsCount;
 
@@ -91,7 +98,13 @@ public class ProjectView implements ProjectScreen.View,
 
     @Override
     public void setContent(HTMLElement content) {
+        this.mainContainer.textContent = "";
         this.mainContainer.appendChild(content);
+    }
+
+    @Override
+    public void setTitle(String projectName) {
+        this.title.textContent = projectName;
     }
 
     @Override
@@ -127,11 +140,11 @@ public class ProjectView implements ProjectScreen.View,
         this.presenter.showSettings();
     }
 
-    private void activate(HTMLOListElement element) {
+    private void activate(HTMLLIElement element) {
         element.classList.add(ACTIVE);
     }
 
-    private void deactivate(HTMLOListElement element) {
+    private void deactivate(HTMLLIElement element) {
         element.classList.remove(ACTIVE);
     }
 

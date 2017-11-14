@@ -34,6 +34,7 @@ import org.junit.runner.RunWith;
 import org.kie.workbench.common.screens.contributors.model.ContributorsDataSets;
 import org.kie.workbench.common.screens.library.api.ProjectInfo;
 import org.kie.workbench.common.screens.library.client.events.ProjectMetricsEvent;
+import org.kie.workbench.common.screens.library.client.screens.project.ProjectMetricsScreen;
 import org.kie.workbench.common.screens.library.client.util.ProjectMetricsFactory;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
