@@ -581,16 +581,23 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
     }
 
     public void goToProject(final WorkspaceProject project) {
+        this.goToProject(project,
+                         () -> {
+                         });
+    }
+
+    public void goToProject(final WorkspaceProject project,
+                            final Command callback) {
         if (projectContext.getActiveWorkspaceProject()
                 .map(activeProject -> !activeProject.equals(project))
                 .orElse(true)) {
             if (closeAllPlacesOrNothing()) {
                 projectContextChangeEvent.fire(new WorkspaceProjectContextChangeEvent(project,
                                                                                       project.getMainModule()));
-                goToProject();
+                goToProject(callback);
             }
         } else {
-            goToProject();
+            goToProject(callback);
         }
     }
 
@@ -770,7 +777,7 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
         closingLibraryPlaces = false;
     }
 
-    public WorkspaceProject getActiveWorkspaceContext(){
+    public WorkspaceProject getActiveWorkspaceContext() {
         return this.projectContext.getActiveWorkspaceProject().orElseThrow(() -> new IllegalStateException("No active workspace project found"));
     }
 

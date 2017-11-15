@@ -1,3 +1,8 @@
 .btn-group.kie-btn-group button {
     margin: 0;
 }
+
+.btn-group.kie-btn-group {
+    padding-right: 10px;
+    padding-left: 10px;
+}

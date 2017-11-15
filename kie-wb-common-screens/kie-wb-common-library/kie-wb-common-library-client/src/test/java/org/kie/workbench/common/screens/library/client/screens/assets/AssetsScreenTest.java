@@ -59,6 +59,9 @@ public class AssetsScreenTest {
     @Mock
     private LibraryService libraryService;
 
+    @Mock
+    private ProjectForkScreen projectForkScreen;
+
     @Before
     public void setUp() {
 
@@ -81,6 +84,7 @@ public class AssetsScreenTest {
                                              libraryPlaces,
                                              emptyAssetsScreen,
                                              populatedAssetsScreen,
+                                             projectForkScreen,
                                              ts,
                                              busyIndicatorView,
                                              new CallerMock<>(libraryService));

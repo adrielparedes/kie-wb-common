@@ -41,6 +41,7 @@ import org.kie.workbench.common.screens.library.client.screens.assets.events.Upd
 import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.edit.EditContributorsPopUpPresenter;
 import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.tab.ContributorsListPresenter;
 import org.kie.workbench.common.screens.library.client.screens.project.delete.DeleteProjectPopUpScreen;
+import org.kie.workbench.common.screens.library.client.screens.project.fork.ForkProjectPopUpScreen;
 import org.kie.workbench.common.screens.library.client.screens.project.rename.RenameProjectPopUpScreen;
 import org.kie.workbench.common.screens.library.client.settings.SettingsPresenter;
 import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
@@ -95,10 +96,16 @@ public class ProjectScreen {
         String getItemSuccessfullyDuplicatedMessage();
 
         String getReimportSuccessfulMessage();
+
+        void setForkEnabled(boolean enabled);
+
+        void setRemote(String userSpace,
+                       String projectName);
     }
 
-    private final LibraryPlaces libraryPlaces;
+    private ManagedInstance<ForkProjectPopUpScreen> forkProjectPopUpScreen;
 
+    private LibraryPlaces libraryPlaces;
     private EmptyAssetsScreen emptyAssetsScreen;
     private AssetsScreen assetsScreen;
     private ContributorsListPresenter contributorsListScreen;
@@ -106,8 +113,8 @@ public class ProjectScreen {
     private ProjectController projectController;
     private SettingsPresenter settingsPresenter;
     private OrganizationalUnitController organizationalUnitController;
-    private final NewFileUploader newFileUploader;
-    private final NewResourcePresenter newResourcePresenter;
+    private NewFileUploader newFileUploader;
+    private NewResourcePresenter newResourcePresenter;
     private BuildExecutor buildExecutor;
     private ManagedInstance<EditContributorsPopUpPresenter> editContributorsPopUpPresenter;
     private ManagedInstance<DeleteProjectPopUpScreen> deleteProjectPopUpScreen;
@@ -136,6 +143,7 @@ public class ProjectScreen {
                          final ManagedInstance<EditContributorsPopUpPresenter> editContributorsPopUpPresenter,
                          final ManagedInstance<DeleteProjectPopUpScreen> deleteProjectPopUpScreen,
                          final ManagedInstance<RenameProjectPopUpScreen> renameProjectPopUpScreen,
+                         final ManagedInstance<ForkProjectPopUpScreen> forkProjectPopUpScreen,
                          final Caller<LibraryService> libraryService,
                          final Caller<ProjectScreenService> projectScreenService,
                          final CopyPopUpPresenter copyPopUpPresenter,
@@ -157,6 +165,7 @@ public class ProjectScreen {
         this.editContributorsPopUpPresenter = editContributorsPopUpPresenter;
         this.deleteProjectPopUpScreen = deleteProjectPopUpScreen;
         this.renameProjectPopUpScreen = renameProjectPopUpScreen;
+        this.forkProjectPopUpScreen = forkProjectPopUpScreen;
         this.libraryService = libraryService;
         this.projectScreenService = projectScreenService;
         this.copyPopUpPresenter = copyPopUpPresenter;
@@ -175,7 +184,7 @@ public class ProjectScreen {
         this.resolveContributorsCount();
         this.resolveAssetsCount();
         this.showAssets();
-
+        this.configureFork(this.workspaceProject);
         this.view.setEditContributorsVisible(this.canEditContributors());
         this.view.setAddAssetVisible(this.userCanUpdateProject());
         this.view.setImportAssetVisible(this.userCanUpdateProject());
@@ -197,6 +206,28 @@ public class ProjectScreen {
         });
     }
 
+    protected void configureFork(WorkspaceProject projectInfo) {
+        if (isFork(projectInfo)) {
+            this.view.setRemote(this.getSpaceName(),
+                                this.getRemoteName());
+            this.view.setForkEnabled(false);
+        } else {
+            this.view.setForkEnabled(this.canForkProject());
+        }
+    }
+
+    public String getRemoteName() {
+        return this.workspaceProject.getName();
+    }
+
+    protected boolean canForkProject() {
+        return true;
+    }
+
+    protected boolean isFork(WorkspaceProject projectInfo) {
+        return projectInfo.getRepository() != null;
+    }
+
     public void setAssetsCount(Integer assetsCount) {
         this.view.setAssetsCount(assetsCount);
     }
@@ -215,6 +246,10 @@ public class ProjectScreen {
 
     private void resolveContributorsCount() {
         this.view.setContributorsCount(this.contributorsListScreen.getContributorsCount());
+    }
+
+    private String getSpaceName() {
+        return this.workspaceProject.getRepository().getSpace().getName();
     }
 
     private void resolveAssetsCount() {

@@ -202,6 +202,17 @@ public class ProjectView implements ProjectScreen.View,
     }
 
     @Override
+    public void setForkEnabled(boolean enabled) {
+
+    }
+
+    @Override
+    public void setRemote(String userSpace,
+                          String projectName) {
+
+    }
+
+    @Override
     public void init(ProjectScreen presenter) {
         this.presenter = presenter;
     }

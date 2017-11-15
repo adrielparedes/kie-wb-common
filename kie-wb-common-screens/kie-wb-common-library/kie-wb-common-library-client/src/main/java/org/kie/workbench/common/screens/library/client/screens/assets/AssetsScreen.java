@@ -16,7 +16,6 @@
 
 package org.kie.workbench.common.screens.library.client.screens.assets;
 
-import javax.annotation.PostConstruct;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -28,6 +27,7 @@ import org.kie.workbench.common.screens.library.api.LibraryService;
 import org.kie.workbench.common.screens.library.api.ProjectAssetListUpdated;
 import org.kie.workbench.common.screens.library.api.Routed;
 import org.kie.workbench.common.screens.library.client.resources.i18n.LibraryConstants;
+import org.kie.workbench.common.screens.library.client.screens.project.fork.ForkProjectCompleteEvent;
 import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
 import org.kie.workbench.common.widgets.client.handlers.NewResourceSuccessEvent;
 import org.uberfire.client.mvp.UberElemental;
@@ -36,11 +36,16 @@ import org.uberfire.ext.widgets.common.client.common.BusyIndicatorView;
 
 public class AssetsScreen {
 
+    public static final String SHOW = "show";
+    public static final String ASSETS = "assets";
+    public static final String FORK = "fork";
+
     private final AssetsScreen.View view;
     private final LibraryPlaces libraryPlaces;
     private final EmptyAssetsScreen emptyAssetsScreen;
     private final PopulatedAssetsScreen populatedAssetsScreen;
     private final BusyIndicatorView busyIndicatorView;
+    private ProjectForkScreen projectForkScreen;
     private final TranslationService ts;
     private final Caller<LibraryService> libraryService;
     private WorkspaceProject projectInfo;
@@ -55,6 +60,7 @@ public class AssetsScreen {
                         final LibraryPlaces libraryPlaces,
                         final EmptyAssetsScreen emptyAssetsScreen,
                         final PopulatedAssetsScreen populatedAssetsScreen,
+                        final ProjectForkScreen projectForkScreen,
                         final TranslationService ts,
                         final BusyIndicatorView busyIndicatorView,
                         final Caller<LibraryService> libraryService) {
@@ -62,16 +68,24 @@ public class AssetsScreen {
         this.libraryPlaces = libraryPlaces;
         this.emptyAssetsScreen = emptyAssetsScreen;
         this.populatedAssetsScreen = populatedAssetsScreen;
+        this.projectForkScreen = projectForkScreen;
         this.ts = ts;
         this.busyIndicatorView = busyIndicatorView;
         this.libraryService = libraryService;
     }
 
-    @PostConstruct
     public void init() {
         this.view.init(this);
         this.projectInfo = libraryPlaces.getActiveWorkspaceContext();
+//        String show = placeRequest.getParameter(SHOW,
+//        ASSETS);
+
+//        if (show.equals(FORK)) {
+//            this.showFork();
+//            placeRequest.getParameters().remove(SHOW);
+//        } else {
         this.showAssets();
+//        }
     }
 
     public void observeAddAsset(@Observes NewResourceSuccessEvent event) {
@@ -84,20 +98,30 @@ public class AssetsScreen {
         }
     }
 
+    private void observeForkRequest(@Observes ForkProjectCompleteEvent event) {
+        this.showAssets();
+    }
+
     protected void showAssets() {
         busyIndicatorView.showBusyIndicator(ts.getTranslation(LibraryConstants.LoadingAssets));
         libraryService.call((Boolean hasAssets) -> {
-            final HTMLElement element =
-                    (hasAssets) ? populatedAssetsScreen.getView().getElement() : emptyAssetsScreen.getView().getElement();
-            ensureContentSet(element);
-            busyIndicatorView.hideBusyIndicator();
-        }, new HasBusyIndicatorDefaultErrorCallback(busyIndicatorView)).hasAssets(this.projectInfo);
+                                final HTMLElement element =
+                                        (hasAssets) ? populatedAssetsScreen.getView().getElement() : emptyAssetsScreen.getView().getElement();
+                                ensureContentSet(element);
+                                busyIndicatorView.hideBusyIndicator();
+                            },
+                            new HasBusyIndicatorDefaultErrorCallback(busyIndicatorView)).hasAssets(this.projectInfo);
     }
 
     private void ensureContentSet(final HTMLElement element) {
         if (element.parentNode == null) {
             this.view.setContent(element);
         }
+    }
+
+    protected void showFork() {
+        this.view.setContent(this.projectForkScreen.getView().getElement());
+        this.projectForkScreen.fork();
     }
 
     public View getView() {

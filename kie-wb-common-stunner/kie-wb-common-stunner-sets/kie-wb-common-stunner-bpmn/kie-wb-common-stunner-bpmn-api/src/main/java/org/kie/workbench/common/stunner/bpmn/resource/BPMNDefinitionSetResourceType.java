@@ -22,7 +22,6 @@ import org.guvnor.common.services.project.categories.Process;
 import org.kie.workbench.common.stunner.bpmn.BPMNDefinitionSet;
 import org.kie.workbench.common.stunner.core.definition.AbstractDefinitionSetResourceType;
 import org.uberfire.workbench.category.Category;
-import org.uberfire.workbench.category.Others;
 
 @ApplicationScoped
 public class BPMNDefinitionSetResourceType extends AbstractDefinitionSetResourceType {

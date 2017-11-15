@@ -325,6 +325,9 @@ public class LibraryConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String ALL = "ALL";
+    
+    @TranslationKey(defaultValue = "")
+    public static String ForkSubtitle = "ForkSubtitle";
 
     @TranslationKey(defaultValue = "")
     public static final String Of = "Of";
