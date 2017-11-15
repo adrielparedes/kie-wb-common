@@ -63,6 +63,10 @@ public interface LibraryService {
 
     List<AssetInfo> getProjectAssets(final ProjectAssetsQuery query);
 
+    int getNumberOfAssets(final ProjectAssetsQuery query);
+
+    int getNumberOfAssets(final Project project);
+
     Boolean hasProjects(final Repository repository,
                         final String branch);
 

@@ -28,6 +28,7 @@ import java.util.regex.Matcher;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.drools.core.beliefsystem.abductive.Abducible;
+import org.guvnor.common.services.project.categories.Model;
 import org.guvnor.structure.backend.config.Removed;
 import org.junit.Before;
 import org.junit.Test;
@@ -216,7 +217,7 @@ public class ImpactAnalysisJavaFileTest extends BaseIndexingTest<JavaResourceTyp
 
     @Override
     protected JavaResourceTypeDefinition getResourceTypeDefinition() {
-        return new JavaResourceTypeDefinition();
+        return new JavaResourceTypeDefinition(new Model());
     }
 
     @Override

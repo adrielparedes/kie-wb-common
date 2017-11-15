@@ -280,4 +280,52 @@ public class LibraryConstants {
 
     @TranslationKey(defaultValue = "")
     public static final String RepositoryURL = "RepositoryURL";
+
+    @TranslationKey(defaultValue = "")
+    public static final String DeleteProject = "DeleteProject";
+
+    @TranslationKey(defaultValue = "")
+    public static final String DeletingProject = "DeletingProject";
+
+    @TranslationKey(defaultValue = "")
+    public static final String DeleteProjectSuccess = "DeleteProjectSuccess";
+
+    @TranslationKey(defaultValue = "")
+    public static final String WrongProjectConfirmedName = "WrongProjectConfirmedName";
+
+    @TranslationKey(defaultValue = "")
+    public static final String DeleteProjectDescription = "DeleteProjectDescription";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ConfirmProjectName = "ConfirmProjectName";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ImportAsset = "ImportAsset";
+
+    @TranslationKey(defaultValue = "")
+    public static final String AddAsset = "AddAsset";
+
+    @TranslationKey(defaultValue = "")
+    public static final String Renaming = "Renaming";
+
+    @TranslationKey(defaultValue = "")
+    public static final String Rename = "Rename";
+
+    @TranslationKey(defaultValue = "")
+    public static final String RenameSuccess = "RenameSuccess";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ForkTitle = "ForkTitle";
+
+    @TranslationKey(defaultValue = "")
+    public static final String Fork = "Fork";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ForkDescription = "ForkDescription";
+
+    @TranslationKey(defaultValue = "")
+    public static final String ALL = "ALL";
+
+    @TranslationKey(defaultValue = "")
+    public static final String Of = "Of";
 }

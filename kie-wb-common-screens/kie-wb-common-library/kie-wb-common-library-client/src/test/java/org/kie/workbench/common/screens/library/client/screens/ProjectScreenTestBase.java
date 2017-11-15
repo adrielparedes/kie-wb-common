@@ -47,9 +47,6 @@ import static org.mockito.Mockito.*;
 public class ProjectScreenTestBase {
 
     @Mock
-    protected ProjectScreen.View view;
-
-    @Mock
     protected LibraryPlaces libraryPlaces;
 
     @Mock
@@ -72,8 +69,6 @@ public class ProjectScreenTestBase {
 
     @Captor
     protected ArgumentCaptor<ProjectAssetsQuery> queryArgumentCaptor;
-
-    protected ProjectScreen projectScreen;
 
     protected ProjectInfo projectInfo;
 

@@ -1,11 +1,11 @@
 /*
- * Copyright (C) 2017 Red Hat, Inc. and/or its affiliates.
+ * Copyright 2017 Red Hat, Inc. and/or its affiliates.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.kie.workbench.common.screens.library.client.screens;
+package org.kie.workbench.common.screens.library.client.screens.project;
 
-import javax.enterprise.context.Dependent;
 import javax.enterprise.event.Observes;
 import javax.inject.Inject;
 
@@ -24,17 +23,11 @@ import org.dashbuilder.displayer.client.DisplayerCoordinator;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.kie.workbench.common.screens.library.api.ProjectInfo;
 import org.kie.workbench.common.screens.library.client.events.ProjectMetricsEvent;
-import org.kie.workbench.common.screens.library.client.resources.i18n.LibraryConstants;
-import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
 import org.kie.workbench.common.screens.library.client.util.ProjectMetricsFactory;
-import org.uberfire.client.annotations.WorkbenchPartTitle;
 import org.uberfire.client.annotations.WorkbenchPartView;
-import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.UberElement;
 import org.uberfire.lifecycle.OnClose;
 
-@Dependent
-@WorkbenchScreen(identifier = LibraryPlaces.PROJECT_METRICS_SCREEN)
 public class ProjectMetricsScreen {
 
     public interface View extends UberElement<ProjectMetricsScreen> {
@@ -87,13 +80,8 @@ public class ProjectMetricsScreen {
         this.displayerCoordinator = displayerCoordinator;
     }
 
-    @WorkbenchPartTitle
-    public String getTitle() {
-        return translationService.getTranslation(LibraryConstants.ProjectMetrics);
-    }
-
     @WorkbenchPartView
-    public UberElement<ProjectMetricsScreen> getView() {
+    public View getView() {
         return view;
     }
 
@@ -102,6 +90,15 @@ public class ProjectMetricsScreen {
 
         this.projectInfo = event.getProjectInfo();
 
+        buildMetrics(this.projectInfo);
+    }
+
+    public void onStartup(ProjectInfo projectInfo) {
+        this.projectInfo = projectInfo;
+        this.buildMetrics(projectInfo);
+    }
+
+    private void buildMetrics(ProjectInfo projectInfo) {
         this.commitsOverTimeDisplayer = metricsFactory.lookupCommitsOverTimeDisplayer(projectInfo);
         this.commitsPerAuthorDisplayer = metricsFactory.lookupCommitsPerAuthorDisplayer(projectInfo);
         this.commitsByYearDisplayer = metricsFactory.lookupCommitsByYearDisplayer(projectInfo);

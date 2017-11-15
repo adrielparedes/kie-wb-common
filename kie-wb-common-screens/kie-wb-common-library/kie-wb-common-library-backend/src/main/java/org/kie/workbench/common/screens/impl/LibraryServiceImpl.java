@@ -17,6 +17,7 @@
 package org.kie.workbench.common.screens.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -58,6 +59,7 @@ import org.kie.workbench.common.screens.library.api.LibraryInfo;
 import org.kie.workbench.common.screens.library.api.LibraryService;
 import org.kie.workbench.common.screens.library.api.OrganizationalUnitRepositoryInfo;
 import org.kie.workbench.common.screens.library.api.ProjectAssetsQuery;
+import org.kie.workbench.common.screens.library.api.index.LibraryValueFileExtensionIndexTerm;
 import org.kie.workbench.common.screens.library.api.index.LibraryValueFileNameIndexTerm;
 import org.kie.workbench.common.screens.library.api.index.LibraryValueProjectRootPathIndexTerm;
 import org.kie.workbench.common.screens.library.api.preferences.LibraryInternalPreferences;
@@ -236,18 +238,12 @@ public class LibraryServiceImpl implements LibraryService {
                      query);
 
         final boolean projectStillExists = ioService.exists(Paths.convert(query.getProject().getRootPath()));
+
         if (!projectStillExists) {
             return Collections.emptyList();
         }
 
-        final HashSet<ValueIndexTerm> queryTerms = new HashSet<>();
-
-        queryTerms.add(new LibraryValueProjectRootPathIndexTerm(query.getProject().getRootPath().toURI()));
-
-        if (query.hasFilter()) {
-            queryTerms.add(new LibraryValueFileNameIndexTerm("*" + query.getFilter() + "*",
-                                                             ValueIndexTerm.TermSearchType.WILDCARD));
-        }
+        final HashSet<ValueIndexTerm> queryTerms = buildProjectAssetsQuery(query);
 
         final PageResponse<RefactoringPageRow> findRulesByProjectQuery = refactoringQueryService.query(new RefactoringPageRequest(FindAllLibraryAssetsQuery.NAME,
                                                                                                                                   queryTerms,
@@ -292,6 +288,22 @@ public class LibraryServiceImpl implements LibraryService {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+    }
+
+    private HashSet<ValueIndexTerm> buildProjectAssetsQuery(ProjectAssetsQuery query) {
+        final HashSet<ValueIndexTerm> queryTerms = new HashSet<>();
+
+        queryTerms.add(new LibraryValueProjectRootPathIndexTerm(query.getProject().getRootPath().toURI()));
+
+        if (query.hasFilter()) {
+            queryTerms.add(new LibraryValueFileNameIndexTerm("*" + query.getFilter() + "*",
+                                                             ValueIndexTerm.TermSearchType.WILDCARD));
+        }
+
+        if (query.hasExtension()) {
+            queryTerms.add(new LibraryValueFileExtensionIndexTerm(query.getExtensions()));
+        }
+        return queryTerms;
     }
 
     @Override
@@ -422,7 +434,17 @@ public class LibraryServiceImpl implements LibraryService {
         return projects;
     }
 
-    private int getNumberOfAssets(final Project project) {
+    @Override
+    public int getNumberOfAssets(final ProjectAssetsQuery query) {
+        HashSet<ValueIndexTerm> queryTerms = this.buildProjectAssetsQuery(query);
+        return refactoringQueryService.queryHitCount(new RefactoringPageRequest(FindAllLibraryAssetsQuery.NAME,
+                                                                                queryTerms,
+                                                                                0,
+                                                                                null));
+    }
+
+    @Override
+    public int getNumberOfAssets(final Project project) {
         final HashSet<ValueIndexTerm> queryTerms = new HashSet<>();
         queryTerms.add(new LibraryValueProjectRootPathIndexTerm(project.getRootPath().toURI()));
 

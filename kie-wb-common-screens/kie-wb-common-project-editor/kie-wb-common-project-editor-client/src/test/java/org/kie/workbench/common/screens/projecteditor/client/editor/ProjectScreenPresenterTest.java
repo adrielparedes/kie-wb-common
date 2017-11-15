@@ -41,6 +41,7 @@ import org.uberfire.client.mvp.LockManager;
 import org.uberfire.mvp.Command;
 import org.uberfire.mvp.ParameterizedCommand;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.workbench.category.Others;
 import org.uberfire.workbench.events.NotificationEvent;
 import org.uberfire.workbench.type.AnyResourceTypeDefinition;
 import org.uberfire.workbench.type.ResourceTypeDefinition;
@@ -100,10 +101,10 @@ public class ProjectScreenPresenterTest
         when(editor.getSuffix()).thenReturn("xml");
         when(editor.accept(any(Path.class))).thenReturn(true);
 
-        assertFalse(presenter.isDeploymentDescritorEditorAvailable(Arrays.<ResourceTypeDefinition>asList(new AnyResourceTypeDefinition()).stream(),
+        assertFalse(presenter.isDeploymentDescritorEditorAvailable(Arrays.<ResourceTypeDefinition>asList(new AnyResourceTypeDefinition(new Others())).stream(),
                                                                    mock(Path.class)));
 
-        assertTrue(presenter.isDeploymentDescritorEditorAvailable(Arrays.<ResourceTypeDefinition>asList(new AnyResourceTypeDefinition(),
+        assertTrue(presenter.isDeploymentDescritorEditorAvailable(Arrays.<ResourceTypeDefinition>asList(new AnyResourceTypeDefinition(new Others()),
                                                                                                         editor).stream(),
                                                                   mock(Path.class)));
     }

@@ -5,34 +5,28 @@
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *       http://www.apache.org/licenses/LICENSE-2.0
+ *     http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ *
  */
 
-.contributors .list-group-item {
-    display: flex;
-    align-items: center;
-}
+package org.kie.workbench.common.screens.library.api.index;
 
-.contributors .list-group-item span {
-    margin-left: 0.5em;
-    font-weight: normal;
-    font-size: 1.2em;
-}
+import org.jboss.errai.common.client.api.annotations.Portable;
+import org.kie.workbench.common.services.refactoring.model.index.terms.IndexTerm;
 
-.contributors .list-group-item input[type=checkbox] {
-    transform: scale(1.5);
-}
+@Portable
+public class LibraryFileExtensionIndexTerm implements IndexTerm {
 
-.contributors .btn span.glyphicon {
-    opacity: 0;
-}
+    public static final String TERM = "libraryFileName";
 
-.contributors .btn.active span.glyphicon {
-    opacity: 1;
+    @Override
+    public String getTerm() {
+        return TERM;
+    }
 }

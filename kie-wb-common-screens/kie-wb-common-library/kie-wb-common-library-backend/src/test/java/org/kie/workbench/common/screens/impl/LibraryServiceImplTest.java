@@ -358,7 +358,8 @@ public class LibraryServiceImplTest {
         final ProjectAssetsQuery query = new ProjectAssetsQuery(project,
                                                                 "",
                                                                 0,
-                                                                10);
+                                                                10,
+                                                                Collections.emptyList());
 
         final PageResponse<RefactoringPageRow> pageRowPageResponse = new PageResponse<>();
         pageRowPageResponse.setPageRowList(new ArrayList<>());
@@ -397,7 +398,8 @@ public class LibraryServiceImplTest {
         final ProjectAssetsQuery query = new ProjectAssetsQuery(project,
                                                                 "helloo",
                                                                 10,
-                                                                20);
+                                                                20,
+                                                                Arrays.asList("xml"));
 
         final PageResponse<RefactoringPageRow> pageRowPageResponse = new PageResponse<>();
         pageRowPageResponse.setPageRowList(new ArrayList<>());
@@ -411,13 +413,15 @@ public class LibraryServiceImplTest {
 
         assertEquals(FindAllLibraryAssetsQuery.NAME,
                      pageRequest.getQueryName());
-        assertEquals(2,
+        assertEquals(3,
                      pageRequest.getQueryTerms().size());
 
         assertQueryTermsContains(pageRequest.getQueryTerms(),
                                  "file://the_project");
         assertQueryTermsContains(pageRequest.getQueryTerms(),
                                  "*helloo*");
+        assertQueryTermsContains(pageRequest.getQueryTerms(),
+                                 ".*(xml)");
 
         assertEquals(10,
                      pageRequest.getStartRowIndex());
@@ -438,7 +442,8 @@ public class LibraryServiceImplTest {
         final ProjectAssetsQuery query = new ProjectAssetsQuery(project,
                                                                 "",
                                                                 10,
-                                                                20);
+                                                                20,
+                                                                Collections.emptyList());
 
         final PageResponse<RefactoringPageRow> pageRowPageResponse = new PageResponse<>();
         final ArrayList<RefactoringPageRow> assetPageRowList = new ArrayList<>();

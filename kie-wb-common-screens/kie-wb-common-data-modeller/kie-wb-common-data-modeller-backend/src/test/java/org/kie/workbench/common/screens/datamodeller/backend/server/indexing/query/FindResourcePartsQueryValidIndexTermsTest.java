@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.apache.lucene.analysis.Analyzer;
 import org.apache.lucene.search.Query;
+import org.guvnor.common.services.project.categories.Model;
 import org.junit.Test;
 import org.kie.workbench.common.screens.datamodeller.backend.server.indexing.TestJavaFileIndexer;
 import org.kie.workbench.common.screens.javaeditor.type.JavaResourceTypeDefinition;
@@ -233,7 +234,7 @@ public class FindResourcePartsQueryValidIndexTermsTest extends BaseIndexingTest<
 
     @Override
     protected JavaResourceTypeDefinition getResourceTypeDefinition() {
-        return new JavaResourceTypeDefinition();
+        return new JavaResourceTypeDefinition(new Model());
     }
 
     @Override

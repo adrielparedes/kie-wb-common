@@ -487,7 +487,7 @@ public class LibraryPlacesTest {
     public void goToProjectTest() {
         final PlaceRequest projectScreen = new ConditionalPlaceRequest(LibraryPlaces.PROJECT_SCREEN)
                 .when(p -> false)
-                .orElse(new DefaultPlaceRequest(LibraryPlaces.EMPTY_PROJECT_SCREEN));
+                .orElse(new DefaultPlaceRequest(LibraryPlaces.PROJECT_SCREEN));
         final PartDefinitionImpl part = new PartDefinitionImpl(projectScreen);
         part.setSelectable(false);
         final ProjectInfo projectInfo = new ProjectInfo(activeOrganizationalUnit,
@@ -648,17 +648,18 @@ public class LibraryPlacesTest {
 
         doReturn(PlaceStatus.OPEN).when(placeManager).getStatus(LibraryPlaces.LIBRARY_PERSPECTIVE);
 
+        doReturn("a").when(activeProject).getProjectName();
+        doReturn("b").when(renamedProject).getProjectName();
         doReturn(activeProject).when(projectContext).getActiveProject();
         doReturn(activeProject).when(renameProjectEvent).getOldProject();
         doReturn(renamedProject).when(renameProjectEvent).getNewProject();
 
         libraryPlaces.projectRenamed(renameProjectEvent);
 
-        verify(libraryPlaces).setupLibraryBreadCrumbsForAsset(new ProjectInfo(projectContext.getActiveOrganizationalUnit(),
-                                                                              projectContext.getActiveRepository(),
-                                                                              projectContext.getActiveBranch(),
-                                                                              renameProjectEvent.getNewProject()),
-                                                              null);
+        verify(libraryPlaces).setupLibraryBreadCrumbsForProject(new ProjectInfo(projectContext.getActiveOrganizationalUnit(),
+                                                                                projectContext.getActiveRepository(),
+                                                                                projectContext.getActiveBranch(),
+                                                                                renameProjectEvent.getNewProject()));
     }
 
     @Test

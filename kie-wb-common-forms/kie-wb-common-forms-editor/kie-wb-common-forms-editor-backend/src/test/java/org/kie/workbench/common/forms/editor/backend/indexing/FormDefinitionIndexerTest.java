@@ -26,6 +26,7 @@ import java.util.Set;
 
 import javax.enterprise.inject.Instance;
 
+import org.guvnor.common.services.project.categories.Form;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.forms.editor.backend.indexing.query.FindFormDefinitionIdsQuery;
@@ -90,7 +91,7 @@ public class FormDefinitionIndexerTest extends BaseIndexingTest<FormResourceType
 
         when(providersInstance.iterator()).thenReturn(providers.iterator());
 
-        indexer = spy(new TestFormDefinitionIndexer(new FormResourceTypeDefinition(),
+        indexer = spy(new TestFormDefinitionIndexer(new FormResourceTypeDefinition(new Form()),
                                                     new FormDefinitionSerializerImpl(new FieldSerializer(),
                                                                                      new FormModelSerializer(),
                                                                                      new TestMetaDataEntryManager()),
@@ -219,6 +220,6 @@ public class FormDefinitionIndexerTest extends BaseIndexingTest<FormResourceType
 
     @Override
     protected FormResourceTypeDefinition getResourceTypeDefinition() {
-        return new FormResourceTypeDefinition();
+        return new FormResourceTypeDefinition(new Form());
     }
 }

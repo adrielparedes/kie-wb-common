@@ -38,12 +38,16 @@ import org.uberfire.lifecycle.OnClose;
 import org.uberfire.lifecycle.OnMayClose;
 import org.uberfire.mvp.Command;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.workbench.category.Others;
 import org.uberfire.workbench.model.menu.Menus;
 
 public abstract class KieTextEditorPresenter
         extends KieEditor {
 
     protected KieTextEditorView view;
+
+    @Inject
+    private Others category;
 
     @Inject
     private Caller<DefaultEditorService> defaultEditorService;
@@ -73,7 +77,7 @@ public abstract class KieTextEditorPresenter
         //This causes loadContent() to be called (which for this sub-class loads the Overview not the Text/XML etc)
         super.init(path,
                    place,
-                   new TextResourceType());
+                   new TextResourceType(category));
 
         //This causes the view's content (Text/XML etc) to be loaded, after which we need to get the original HashCode to support "dirty" content
         view.onStartup(path);

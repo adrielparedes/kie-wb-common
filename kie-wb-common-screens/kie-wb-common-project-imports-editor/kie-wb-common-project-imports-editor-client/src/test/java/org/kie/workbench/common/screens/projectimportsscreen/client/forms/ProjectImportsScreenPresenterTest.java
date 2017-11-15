@@ -43,6 +43,7 @@ import org.uberfire.ext.editor.commons.client.history.VersionRecordManager;
 import org.uberfire.ext.editor.commons.client.validation.Validator;
 import org.uberfire.ext.widgets.common.client.callbacks.HasBusyIndicatorDefaultErrorCallback;
 import org.uberfire.mvp.PlaceRequest;
+import org.uberfire.workbench.category.Others;
 import org.uberfire.workbench.model.menu.MenuItem;
 
 import static org.mockito.Matchers.any;
@@ -101,7 +102,8 @@ public class ProjectImportsScreenPresenterTest {
 
     @InjectMocks
     protected ProjectImportsScreenPresenter presenter = new ProjectImportsScreenPresenter(view,
-                                                                                          serviceCaller);
+                                                                                          serviceCaller,
+                                                                                          new Others());
 
     @Before
     public void initTest() {
