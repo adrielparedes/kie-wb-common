@@ -28,6 +28,7 @@ import org.junit.runner.RunWith;
 import org.guvnor.common.services.project.categories.Decision;
 import org.uberfire.client.mvp.CategoriesManagerCache;
 import org.uberfire.ext.widgets.common.client.select.SelectOption;
+import org.uberfire.ext.widgets.common.client.select.SelectOptionImpl;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.uberfire.workbench.category.Others;

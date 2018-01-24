@@ -28,6 +28,7 @@ import org.kie.workbench.common.screens.library.client.resources.i18n.LibraryCon
 import org.uberfire.client.mvp.CategoriesManagerCache;
 import org.uberfire.ext.widgets.common.client.select.SelectComponent;
 import org.uberfire.ext.widgets.common.client.select.SelectOption;
+import org.uberfire.ext.widgets.common.client.select.SelectOptionImpl;
 
 @ApplicationScoped
 public class CategoryUtils {
@@ -52,11 +53,11 @@ public class CategoryUtils {
      */
     public List<SelectOption> createCategories() {
         List<SelectOption> options = new ArrayList<>();
-        options.add(new SelectOption("ALL",
-                                     ts.getTranslation(LibraryConstants.ALL)));
+        options.add(new SelectOptionImpl("ALL",
+                                         ts.getTranslation(LibraryConstants.ALL)));
         options.addAll(categoriesManagerCache.getCategories().stream()
-                               .map(category -> new SelectOption(category.getName(),
-                                                                 ts.getTranslation(category.getName())))
+                               .map(category -> new SelectOptionImpl(category.getName(),
+                                                                     ts.getTranslation(category.getName())))
                                .collect(Collectors.toList()));
         return options;
     }
