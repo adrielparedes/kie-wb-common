@@ -101,8 +101,6 @@ public class DeleteProjectPopUpScreen {
         view.showBusyIndicator(view.getDeletingMessage());
         projectService.call(v -> {
                                 view.hideBusyIndicator();
-                                notificationEvent.fire(new NotificationEvent(view.getDeleteSuccessMessage(),
-                                                                             NotificationEvent.NotificationType.SUCCESS));
                                 view.hide();
                             },
                             new HasBusyIndicatorDefaultErrorCallback(view)).delete(project.getPomXMLPath(),
