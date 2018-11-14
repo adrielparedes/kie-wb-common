@@ -17,11 +17,40 @@
 
 package org.kie.workbench.common.screens.library.client.screens.changerequest;
 
+import javax.inject.Inject;
+
+import org.kie.workbench.common.screens.library.client.perspective.LibraryPerspective;
+import org.kie.workbench.common.screens.library.client.util.LibraryPlaces;
+import org.uberfire.client.annotations.WorkbenchPartTitle;
+import org.uberfire.client.annotations.WorkbenchPartView;
+import org.uberfire.client.annotations.WorkbenchScreen;
 import org.uberfire.client.mvp.UberElemental;
 
+@WorkbenchScreen(identifier = LibraryPlaces.SUBMIT_CHANGE_REQUEST,
+        owningPerspective = LibraryPerspective.class)
 public class SubmitChangeRequestScreen {
 
+    private final View view;
+
+    @Inject
+    public SubmitChangeRequestScreen(final View view) {
+        this.view = view;
+        this.view.init(this);
+    }
+
+    @WorkbenchPartTitle
+    public String getTitle() {
+        return this.getView().getTitle();
+    }
+
+    @WorkbenchPartView
+    public SubmitChangeRequestScreen.View getView() {
+        return this.view;
+    }
+
     public interface View extends UberElemental<SubmitChangeRequestScreen> {
+
+        String getTitle();
 
         void setFromBranch(String from);
 

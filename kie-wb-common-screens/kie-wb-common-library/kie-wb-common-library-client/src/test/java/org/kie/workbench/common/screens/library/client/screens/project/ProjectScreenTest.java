@@ -23,7 +23,6 @@ import elemental2.dom.HTMLElement;
 import org.guvnor.common.services.project.client.context.WorkspaceProjectContext;
 import org.guvnor.common.services.project.client.security.ProjectController;
 import org.guvnor.common.services.project.context.WorkspaceProjectContextChangeEvent;
-import org.guvnor.common.services.project.model.Module;
 import org.guvnor.common.services.project.model.WorkspaceProject;
 import org.guvnor.messageconsole.client.console.widget.button.ViewHideAlertsButtonPresenter;
 import org.guvnor.structure.client.security.OrganizationalUnitController;
@@ -37,6 +36,7 @@ import org.kie.workbench.common.screens.defaulteditor.client.editor.NewFileUploa
 import org.kie.workbench.common.screens.library.api.LibraryService;
 import org.kie.workbench.common.screens.library.client.screens.ProjectScreenTestBase;
 import org.kie.workbench.common.screens.library.client.screens.assets.AssetsScreen;
+import org.kie.workbench.common.screens.library.client.screens.changerequest.SubmitChangeRequestScreen;
 import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.edit.EditContributorsPopUpPresenter;
 import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.tab.ContributorsListPresenter;
 import org.kie.workbench.common.screens.library.client.screens.project.branch.delete.DeleteBranchPopUpScreen;
@@ -60,18 +60,8 @@ import org.uberfire.mocks.CallerMock;
 import org.uberfire.promise.SyncPromises;
 import org.uberfire.workbench.events.NotificationEvent;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.doReturn;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.spy;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.junit.Assert.*;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProjectScreenTest extends ProjectScreenTestBase {
@@ -142,6 +132,9 @@ public class ProjectScreenTest extends ProjectScreenTestBase {
     private SettingsPresenter settingsPresenter;
 
     @Mock
+    private SubmitChangeRequestScreen submitChangeRequestScreen;
+
+    @Mock
     private ProjectScreenService projectScreenService;
     private Caller<ProjectScreenService> projectScreenServiceCaller;
 
@@ -199,7 +192,8 @@ public class ProjectScreenTest extends ProjectScreenTestBase {
                                                               projectNameValidator,
                                                               promises,
                                                               notificationEvent,
-                                                              viewHideAlertsButtonPresenter);
+                                                              viewHideAlertsButtonPresenter,
+                                                              submitChangeRequestScreen);
         this.presenter = spy(projectScreen);
 
         this.presenter.workspaceProject = spy(createProject());
@@ -325,7 +319,8 @@ public class ProjectScreenTest extends ProjectScreenTestBase {
     @Test
     public void testActionsVisibilityWithPermissionToDeleteProjectInCreatedBranch() {
         doReturn(true).when(this.presenter).userCanDeleteProject();
-        doReturn(new Branch("other-branch", mock(Path.class))).when(presenter.workspaceProject).getBranch();
+        doReturn(new Branch("other-branch",
+                            mock(Path.class))).when(presenter.workspaceProject).getBranch();
 
         presenter.initialize();
 
@@ -554,6 +549,7 @@ public class ProjectScreenTest extends ProjectScreenTestBase {
             }
         });
 
-        verify(view, never()).setTitle(any());
+        verify(view,
+               never()).setTitle(any());
     }
 }

@@ -15,19 +15,43 @@
   ~
   -->
 
-<div class="library container-fluid">
-    <div class="row page-content-kie">
+<div class="ac library">
+    <div class="page-content-kie">
         <div class="toolbar-pf">
             <div class="toolbar-pf-actions">
                 <div class="toolbar-data-title-kie" data-field="title"></div>
                 <div class="btn-group toolbar-btn-group-kie">
-                    <button type="button" class="btn btn-primary" data-field="create-organizational-unit" hidden></button>
+                    <button class="btn btn-default" data-field="cancel" data-i18n-key="Cancel"></button>
+                    <button class="btn btn-primary" data-field="submit" data-i18n-key="Submit"></button>
                 </div>
             </div>
         </div>
-        <div class="container-fluid container-cards-pf">
-            <div class="row row-cards-pf" data-field="cards-container">
+
+
+        <div class="main-container col-md-12 col-lg-12">
+
+
+            <div class="col-xs-12 col-sm-6">
+                <form role="form">
+                    <div class="form-group">
+                        <label for="summary" data-i18n-key="Summary"></label>
+                        <input id="summary" data-field="summary" class="form-control"/>
+                    </div>
+                    <div class="form-group">
+                        <label for="description" data-i18n-key="Description"></label>
+                        <textarea id="description" data-field="description" class="form-control"/>
+                    </div>
+                </form>
+            </div>
+
+            <div id="information" data-field="information"></div>
+
+            <div class="container-cards-pf">
+                <!--<div class="row row-cards-pf" data-field="project-list">-->
+                <!--</div>-->
             </div>
         </div>
+
+
     </div>
 </div>

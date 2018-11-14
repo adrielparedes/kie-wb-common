@@ -145,6 +145,10 @@ public class ProjectView implements ProjectScreen.View,
     private HTMLButtonElement deploy;
 
     @Inject
+    @DataField("create-change-request")
+    private HTMLAnchorElement createChangeRequest;
+
+    @Inject
     @DataField("main-actions")
     private HTMLDivElement mainActions;
 
@@ -310,6 +314,11 @@ public class ProjectView implements ProjectScreen.View,
     @EventHandler("add-asset-action")
     public void addAsset(final ClickEvent event) {
         presenter.addAsset();
+    }
+
+    @EventHandler("create-change-request")
+    public void createChangeRequest(final ClickEvent event) {
+        presenter.submitChangeRequest();
     }
 
     @EventHandler("duplicate")

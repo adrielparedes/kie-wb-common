@@ -19,7 +19,10 @@ package org.kie.workbench.common.screens.library.client.screens.changerequest;
 
 import javax.inject.Inject;
 
+import elemental2.dom.HTMLButtonElement;
 import elemental2.dom.HTMLDivElement;
+import elemental2.dom.HTMLInputElement;
+import elemental2.dom.HTMLTextAreaElement;
 import org.jboss.errai.ui.client.local.api.elemental2.IsElement;
 import org.jboss.errai.ui.client.local.spi.TranslationService;
 import org.jboss.errai.ui.shared.api.annotations.DataField;
@@ -39,10 +42,36 @@ public class SubmitChangeRequestView implements SubmitChangeRequestScreen.View,
     @DataField("title")
     private HTMLDivElement title;
 
+    @Inject
+    @DataField("summary")
+    private HTMLInputElement summary;
+
+    @Inject
+    @DataField("description")
+    private HTMLTextAreaElement description;
+
+//    @Inject
+//    @DataField("information")
+//    private HTMLDivElement information;
+
+    @Inject
+    @DataField("submit")
+    private HTMLButtonElement submit;
+
+    @Inject
+    @DataField("cancel")
+    private HTMLButtonElement cancel;
+
     @Override
     public void init(SubmitChangeRequestScreen presenter) {
         this.screen = presenter;
         this.title.textContent = ts.getTranslation(LibraryConstants.SubmitChangeRequest);
+//        this.information.textContent = "2 files changed with 140 additions and 140 deletions";
+    }
+
+    @Override
+    public String getTitle() {
+        return this.title.textContent = ts.getTranslation(LibraryConstants.SubmitChangeRequest);
     }
 
     @Override

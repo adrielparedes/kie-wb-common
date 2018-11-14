@@ -30,7 +30,6 @@ import org.guvnor.common.services.project.model.WorkspaceProject;
 import org.guvnor.messageconsole.client.console.widget.button.ViewHideAlertsButtonPresenter;
 import org.guvnor.structure.client.security.OrganizationalUnitController;
 import org.guvnor.structure.events.AfterEditOrganizationalUnitEvent;
-import org.jboss.errai.bus.client.api.messaging.Message;
 import org.jboss.errai.common.client.api.Caller;
 import org.jboss.errai.common.client.dom.elemental2.Elemental2DomUtil;
 import org.jboss.errai.ioc.client.api.ManagedInstance;
@@ -40,6 +39,7 @@ import org.kie.workbench.common.screens.library.api.LibraryService;
 import org.kie.workbench.common.screens.library.client.perspective.LibraryPerspective;
 import org.kie.workbench.common.screens.library.client.screens.assets.AssetsScreen;
 import org.kie.workbench.common.screens.library.client.screens.assets.events.UpdatedAssetsEvent;
+import org.kie.workbench.common.screens.library.client.screens.changerequest.SubmitChangeRequestScreen;
 import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.edit.EditContributorsPopUpPresenter;
 import org.kie.workbench.common.screens.library.client.screens.organizationalunit.contributors.tab.ContributorsListPresenter;
 import org.kie.workbench.common.screens.library.client.screens.project.branch.delete.DeleteBranchPopUpScreen;
@@ -60,7 +60,6 @@ import org.uberfire.client.mvp.UberElemental;
 import org.uberfire.client.promise.Promises;
 import org.uberfire.ext.editor.commons.client.file.CommandWithFileNameAndCommitMessage;
 import org.uberfire.ext.editor.commons.client.file.popups.CopyPopUpPresenter;
-import org.uberfire.ext.widgets.common.client.callbacks.HasBusyIndicatorDefaultErrorCallback;
 import org.uberfire.lifecycle.OnMayClose;
 import org.uberfire.workbench.events.NotificationEvent;
 
@@ -134,6 +133,7 @@ public class ProjectScreen {
     private Promises promises;
     private Event<NotificationEvent> notificationEvent;
     private ViewHideAlertsButtonPresenter viewHideAlertsButtonPresenter;
+    private SubmitChangeRequestScreen submitChangeRequestScreen;
 
     @Inject
     public ProjectScreen(final View view,
@@ -157,7 +157,8 @@ public class ProjectScreen {
                          final ProjectNameValidator projectNameValidator,
                          final Promises promises,
                          final Event<NotificationEvent> notificationEvent,
-                         final ViewHideAlertsButtonPresenter viewHideAlertsButtonPresenter) {
+                         final ViewHideAlertsButtonPresenter viewHideAlertsButtonPresenter,
+                         final SubmitChangeRequestScreen submitChangeRequestScreen) {
         this.view = view;
         this.libraryPlaces = libraryPlaces;
         this.assetsScreen = assetsScreen;
@@ -180,6 +181,7 @@ public class ProjectScreen {
         this.promises = promises;
         this.notificationEvent = notificationEvent;
         this.viewHideAlertsButtonPresenter = viewHideAlertsButtonPresenter;
+        this.submitChangeRequestScreen = submitChangeRequestScreen;
         this.elemental2DomUtil = new Elemental2DomUtil();
     }
 
@@ -329,6 +331,10 @@ public class ProjectScreen {
         }
     }
 
+    public void submitChangeRequest() {
+        libraryPlaces.goToSubmitChangeRequest("branch");
+    }
+
     public void duplicate() {
         if (this.userCanCreateProjects()) {
             copyPopUpPresenter.show(
@@ -344,9 +350,11 @@ public class ProjectScreen {
 
             view.showBusyIndicator(view.getLoadingMessage());
 
-            promises.promisify(projectScreenService, s -> {
-                s.copy(workspaceProject, details.getNewFileName());
-            }).then(i -> {
+            promises.promisify(projectScreenService,
+                               s -> {
+                                   s.copy(workspaceProject,
+                                          details.getNewFileName());
+                               }).then(i -> {
                 view.hideBusyIndicator();
                 notificationEvent.fire(new NotificationEvent(view.getItemSuccessfullyDuplicatedMessage(),
                                                              NotificationEvent.NotificationType.SUCCESS));
@@ -360,9 +368,10 @@ public class ProjectScreen {
             final Path pomXMLPath = workspaceProject.getMainModule().getPomXMLPath();
             view.showBusyIndicator(view.getLoadingMessage());
 
-            promises.promisify(projectScreenService, s -> {
-                s.reImport(pomXMLPath);
-            }).then(i -> {
+            promises.promisify(projectScreenService,
+                               s -> {
+                                   s.reImport(pomXMLPath);
+                               }).then(i -> {
                 view.hideBusyIndicator();
                 notificationEvent.fire(new NotificationEvent(view.getReimportSuccessfulMessage(),
                                                              NotificationEvent.NotificationType.SUCCESS));
@@ -372,13 +381,15 @@ public class ProjectScreen {
     }
 
     private Promise<Object> onError(final Object o) {
-        return promises.catchOrExecute(o, e -> {
-            view.hideBusyIndicator();
-            return promises.reject(e);
-        }, x -> {
-            view.hideBusyIndicator();
-            return promises.reject(x);
-        });
+        return promises.catchOrExecute(o,
+                                       e -> {
+                                           view.hideBusyIndicator();
+                                           return promises.reject(e);
+                                       },
+                                       x -> {
+                                           view.hideBusyIndicator();
+                                           return promises.reject(x);
+                                       });
     }
 
     public void build() {

@@ -113,6 +113,7 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
     public static final String ALERTS = MessageConsoleScreen.ALERTS;
     public static final String REPOSITORY_STRUCTURE_SCREEN = "repositoryStructureScreen";
     public static final String ADD_ASSET_SCREEN = "AddAssetsScreen";
+    public static final String SUBMIT_CHANGE_REQUEST = "SubmitChangeRequest";
 
     public static final List<String> LIBRARY_PLACES = Arrays.asList(
             LIBRARY_SCREEN,
@@ -250,7 +251,8 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
             final PlaceRequest place = placeGainFocusEvent.getPlace();
 
             if (place instanceof PathPlaceRequest) {
-                libraryBreadcrumbs.setupForAsset(getActiveWorkspace(), ((PathPlaceRequest) place).getPath());
+                libraryBreadcrumbs.setupForAsset(getActiveWorkspace(),
+                                                 ((PathPlaceRequest) place).getPath());
                 showDocks();
             } else if (!place.getIdentifier().equals(ALERTS) && isLibraryPlace(place)) {
                 hideDocks();
@@ -319,7 +321,8 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
         if (isLibraryPerspectiveOpen()) {
             final ObservablePath path = concurrentRenameAcceptedEvent.getPath();
             goToAsset(path);
-            libraryBreadcrumbs.setupForAsset(getActiveWorkspace(), path);
+            libraryBreadcrumbs.setupForAsset(getActiveWorkspace(),
+                                             path);
         }
     }
 
@@ -525,14 +528,15 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
                 .map(activeProject -> !activeProject.equals(project))
                 .orElse(true)) {
             libraryInternalPreferences.load(loadedLibraryInternalPreferences -> {
-                closeAllPlacesOrNothing(() -> {
-                    projectContextChangeEvent.fire(new WorkspaceProjectContextChangeEvent(project,
-                                                                                          project.getMainModule()));
-                    goToProject(project, loadedLibraryInternalPreferences.getLastBranchOpened(project).orElse(project.getBranch()));
-                });
-            },
-            error -> {
-            });
+                                                closeAllPlacesOrNothing(() -> {
+                                                    projectContextChangeEvent.fire(new WorkspaceProjectContextChangeEvent(project,
+                                                                                                                          project.getMainModule()));
+                                                    goToProject(project,
+                                                                loadedLibraryInternalPreferences.getLastBranchOpened(project).orElse(project.getBranch()));
+                                                });
+                                            },
+                                            error -> {
+                                            });
         } else {
             goToProject();
         }
@@ -542,7 +546,8 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
                             final Branch branch) {
         libraryInternalPreferences.load(loadedLibraryInternalPreferences -> {
                                             final Optional<Branch> lastBranchOpened = loadedLibraryInternalPreferences.getLastBranchOpened(project);
-                                            final Command goToProjectCommand = () -> projectService.call((RemoteCallback<WorkspaceProject>) this::goToProject).resolveProject(project.getSpace(), branch);
+                                            final Command goToProjectCommand = () -> projectService.call((RemoteCallback<WorkspaceProject>) this::goToProject).resolveProject(project.getSpace(),
+                                                                                                                                                                              branch);
 
                                             if (!lastBranchOpened.isPresent() || !lastBranchOpened.get().equals(branch)) {
                                                 loadedLibraryInternalPreferences.setLastBranchOpened(project,
@@ -592,7 +597,8 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
 
             if (path != null) {
                 final ObservablePath observablePath = ((PathPlaceRequest) placeRequest).getPath();
-                observablePath.onRename(() -> libraryBreadcrumbs.setupForAsset(getActiveWorkspace(), observablePath));
+                observablePath.onRename(() -> libraryBreadcrumbs.setupForAsset(getActiveWorkspace(),
+                                                                               observablePath));
             }
         }).resolvePackage(path);
     }
@@ -716,7 +722,8 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
             closeUnsavedProjectAssetsPopUpPresenter.show(getActiveWorkspace(),
                                                          uncloseablePlaces,
                                                          newSuccessCallback,
-                                                         () -> {});
+                                                         () -> {
+                                                         });
         }
     }
 
@@ -772,7 +779,8 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
                 closeAllPlacesOrNothing(this::goToProject);
             }
 
-            if (Utils.hasModuleChanged(previous.getModule(), current.getModule())) {
+            if (Utils.hasModuleChanged(previous.getModule(),
+                                       current.getModule())) {
                 libraryBreadcrumbs.setupForProject(projectContext.getActiveWorkspaceProject().get());
             }
         }
@@ -801,5 +809,13 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
 
     protected Map<String, List<String>> getParameterMap() {
         return Window.Location.getParameterMap();
+    }
+
+    public void goToSubmitChangeRequest(String branch) {
+        final PlaceRequest submitChangeRequestScreen = new DefaultPlaceRequest(LibraryPlaces.SUBMIT_CHANGE_REQUEST);
+        final PartDefinitionImpl part = new PartDefinitionImpl(submitChangeRequestScreen);
+        part.setSelectable(false);
+        placeManager.goTo(part,
+                          libraryPerspective.getRootPanel());
     }
 }
