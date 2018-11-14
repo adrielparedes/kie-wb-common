@@ -491,4 +491,6 @@ public class LibraryConstants {
     @TranslationKey(defaultValue = "")
     public static final String BranchDeleted = "BranchDeleted";
 
+    @TranslationKey(defaultValue = "")
+    public static final String SubmitChangeRequest = "SubmitChangeRequest";
 }
