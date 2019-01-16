@@ -19,6 +19,8 @@ import * as AppFormer from "appformer-js";
 import * as Service from "./service";
 import { NewSpacePopup } from "./NewSpacePopup";
 import { LoadingPopup } from "./LoadingPopup";
+import {NotificationEvent} from "./NotificationEvent";
+import {NotificationType} from "./NotificationType";
 
 interface Props {
   exposing: (self: () => SpacesScreen) => void;
@@ -43,14 +45,26 @@ export class SpacesScreen extends React.Component<Props, State> {
   }
 
   private goToSpace(space: Service.Space) {
-    return this.showLoadingPopupWhile(
-      Service.updateLibraryPreference({
-        projectExplorerExpanded: false,
-        lastOpenedOrganizationalUnit: space.name
-      }).then(() => {
-        return LibraryPlaces.goToSpace(space.name);
-      })
-    );
+    if (space.deleted) {
+        AppFormer.fireEvent(
+            new NotificationEvent({
+                type: NotificationType.WARNING,
+                notification: AppFormer.translate("OrganizationalUnitDeletedCannotBeOpened", [
+                    AppFormer.translate("OrganizationalUnitDefaultAliasInSingular", []).toLowerCase()
+                ])
+            })
+        );
+        return Promise.resolve();
+    } else {
+        return this.showLoadingPopupWhile(
+            Service.updateLibraryPreference({
+                projectExplorerExpanded: false,
+                lastOpenedOrganizationalUnit: space.name
+            }).then(() => {
+                return LibraryPlaces.goToSpace(space.name);
+            })
+        );
+    }
   }
 
   public canCreateSpace() {
@@ -187,10 +201,28 @@ export function Tile(props: { space: Service.Space; onSelect: () => void }) {
             "card-pf card-pf-view card-pf-view-select card-pf-view-single-select"
           }
           onClick={() => props.onSelect()}
+          title={AppFormer.translate("OrganizationalUnitDeletedCannotBeOpened", [
+              AppFormer.translate("OrganizationalUnitDefaultAliasInSingular", []).toLowerCase()
+          ])}
         >
           <div className={"card-pf-body"}>
             <div>
-              <h2 className={"card-pf-title"}> {props.space.name} </h2>
+              <div
+                  className={"card-pf-title"}
+                  style={{
+                      display: "flex"
+                  }}
+              >
+                <h2 className={"card-pf-title"}> {props.space.name} </h2>
+                {props.space.deleted && (
+                    <span
+                      className={"pficon-warning-triangle-o"}
+                      style={{
+                        marginLeft: "10px"
+                      }}
+                    />
+                )}
+              </div>
               <h5>
                 {AppFormer.translate("NumberOfContributors", [
                   props.space.contributors!.length.toString()

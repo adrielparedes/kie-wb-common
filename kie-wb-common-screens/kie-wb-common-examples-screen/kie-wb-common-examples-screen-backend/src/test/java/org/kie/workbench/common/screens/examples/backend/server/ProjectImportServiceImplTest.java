@@ -43,9 +43,6 @@ import org.guvnor.structure.repositories.Repository;
 import org.guvnor.structure.repositories.RepositoryEnvironmentConfigurations;
 import org.guvnor.structure.repositories.RepositoryService;
 import org.guvnor.structure.repositories.impl.git.GitRepository;
-import org.guvnor.structure.server.config.ConfigGroup;
-import org.guvnor.structure.server.config.ConfigType;
-import org.guvnor.structure.server.config.ConfigurationFactory;
 import org.guvnor.structure.server.repositories.RepositoryFactory;
 import org.junit.Before;
 import org.junit.Test;
@@ -78,9 +75,6 @@ public class ProjectImportServiceImplTest {
 
     @Mock
     private IOService ioService;
-
-    @Mock
-    private ConfigurationFactory configurationFactory;
 
     @Mock
     private RepositoryFactory repositoryFactory;
@@ -120,7 +114,6 @@ public class ProjectImportServiceImplTest {
     public void setup() {
         service = spy(new ProjectImportServiceImpl(ioService,
                                                    metadataService,
-                                                   configurationFactory,
                                                    repositoryFactory,
                                                    moduleService,
                                                    validators,
@@ -129,11 +122,6 @@ public class ProjectImportServiceImplTest {
                                                    projectScreenService,
                                                    newProjectEvent,
                                                    repoService));
-
-        when(configurationFactory.newConfigGroup(any(ConfigType.class),
-                                                 anyString(),
-                                                 anyString(),
-                                                 anyString())).thenReturn(mock(ConfigGroup.class));
     }
 
     @Test
@@ -180,11 +168,12 @@ public class ProjectImportServiceImplTest {
         when(pathUtil.convert(any(Path.class))).thenCallRealMethod();
 
         final GitRepository repository = makeGitRepository();
-        when(repositoryFactory.newRepository(any(ConfigGroup.class))).thenReturn(repository);
+//        when(repositoryFactory.newRepository(any(ConfigGroup.class))).thenReturn(repository);
         when(moduleService.getAllModules(any(Branch.class))).thenReturn(new HashSet<Module>() {{
             add(module);
         }});
-        doReturn(Collections.singletonList("master")).when(service).getBranches(any(org.uberfire.java.nio.file.Path.class), any(Path.class));
+        doReturn(Collections.singletonList("master")).when(service).getBranches(any(org.uberfire.java.nio.file.Path.class),
+                                                                                any(Path.class));
 
         String origin = "https://github.com/guvnorngtestuser1/guvnorng-playground.git";
         final Set<ImportProject> modules = service.getProjects(new ExampleRepository(origin));
@@ -216,11 +205,12 @@ public class ProjectImportServiceImplTest {
         when(pathUtil.convert(any(Path.class))).thenCallRealMethod();
 
         final GitRepository repository = makeGitRepository();
-        when(repositoryFactory.newRepository(any(ConfigGroup.class))).thenReturn(repository);
+//        when(repositoryFactory.newRepository(any(ConfigGroup.class))).thenReturn(repository);
         when(moduleService.getAllModules(any(Branch.class))).thenReturn(new HashSet<Module>() {{
             add(module);
         }});
-        doReturn(Collections.singletonList("master")).when(service).getBranches(any(org.uberfire.java.nio.file.Path.class), any(Path.class));
+        doReturn(Collections.singletonList("master")).when(service).getBranches(any(org.uberfire.java.nio.file.Path.class),
+                                                                                any(Path.class));
 
         String origin = "https://github.com/guvnorngtestuser1/guvnorng-playground.git";
         final Set<ImportProject> modules = service.getProjects(new ExampleRepository(origin));
@@ -253,11 +243,12 @@ public class ProjectImportServiceImplTest {
         when(pathUtil.convert(any(Path.class))).thenCallRealMethod();
 
         final GitRepository repository = makeGitRepository();
-        when(repositoryFactory.newRepository(any(ConfigGroup.class))).thenReturn(repository);
+//        when(repositoryFactory.newRepository(any(ConfigGroup.class))).thenReturn(repository);
         when(moduleService.getAllModules(any(Branch.class))).thenReturn(new HashSet<Module>() {{
             add(module);
         }});
-        doReturn(Collections.singletonList("master")).when(service).getBranches(any(org.uberfire.java.nio.file.Path.class), any(Path.class));
+        doReturn(Collections.singletonList("master")).when(service).getBranches(any(org.uberfire.java.nio.file.Path.class),
+                                                                                any(Path.class));
 
         String origin = "https://github.com/guvnorngtestuser1/guvnorng-playground.git";
         final Set<ImportProject> modules = service.getProjects(new ExampleRepository(origin));
@@ -464,7 +455,10 @@ public class ProjectImportServiceImplTest {
                                       username,
                                       password,
                                       branches);
-        verify(repoService).createRepository(any(),any(),any(),captor.capture());
+        verify(repoService).createRepository(any(),
+                                             any(),
+                                             any(),
+                                             captor.capture());
 
         assertFalse(captor.getValue().containsConfiguration(EnvironmentParameters.USER_NAME));
         assertFalse(captor.getValue().containsConfiguration(EnvironmentParameters.PASSWORD));
@@ -494,8 +488,6 @@ public class ProjectImportServiceImplTest {
                                                                        username,
                                                                        password,
                                                                        branches);
-
-
 
         verify(repoService).createRepository(same(organizationalUnit),
                                              eq(GitRepository.SCHEME.toString()),
