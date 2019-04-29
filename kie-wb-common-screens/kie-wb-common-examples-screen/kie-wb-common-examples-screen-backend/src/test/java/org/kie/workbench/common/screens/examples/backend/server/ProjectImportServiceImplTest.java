@@ -365,6 +365,7 @@ public class ProjectImportServiceImplTest {
                                           any(),
                                           any(),
                                           configCaptor.capture())).thenReturn(repo);
+
         when(projectService.resolveProject(any(Repository.class))).thenReturn(project);
 
         final WorkspaceProject observedProject = service.importProject(organizationalUnit,
