@@ -495,8 +495,8 @@ public class ExamplesServiceImplTest {
 
         Repository result = service.resolveGitRepository(playgroundRepository);
 
-//        assertEquals(repository,
-//                     result);
+        assertEquals(repository,
+                     result);
         assertEquals(false,
                      captor.getValue().getConfiguration().get(Boolean.class,
                                                               EnvironmentParameters.MIRROR));
