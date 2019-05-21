@@ -8,13 +8,18 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.guvnor.common.services.project.model.WorkspaceProject;
+import org.guvnor.structure.organizationalunit.config.SpaceConfigStorage;
+import org.guvnor.structure.organizationalunit.config.SpaceConfigStorageRegistry;
+import org.guvnor.structure.organizationalunit.config.SpaceInfo;
 import org.guvnor.structure.repositories.Repository;
 import org.guvnor.structure.server.config.ConfigGroup;
 import org.guvnor.structure.server.config.ConfigItem;
 import org.guvnor.structure.server.config.ConfigType;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.kie.workbench.common.migration.cli.SystemAccess;
+import org.kie.workbench.common.project.cli.util.ConfigGroupToSpaceInfoConverter;
 import org.kie.workbench.common.project.config.MigrationConfigurationServiceImpl;
 import org.kie.workbench.common.project.config.MigrationRepositoryServiceImpl;
 import org.kie.workbench.common.project.config.MigrationWorkspaceProjectMigrationServiceImpl;
@@ -64,8 +69,20 @@ public class MigrateAllProjectsTest {
     @Mock
     private SystemAccess system;
 
+    @Mock
+    private ConfigGroupToSpaceInfoConverter configGroupToSpaceInfoConverter;
+
+    @Mock
+    private SpaceConfigStorageRegistry spaceConfigStorageRegistry;
+
     @InjectMocks
     private InternalMigrationService service;
+
+    @Before
+    public void init() {
+        when(configGroupToSpaceInfoConverter.toSpaceInfo(any())).thenReturn(mock(SpaceInfo.class));
+        when(spaceConfigStorageRegistry.get(anyString())).thenReturn(mock(SpaceConfigStorage.class));
+    }
 
     public List<ConfigGroup> initConfigGroups() {
         List<ConfigGroup> spaceConfigs = new ArrayList<>();
