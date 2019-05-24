@@ -22,6 +22,7 @@ import javax.enterprise.inject.Alternative;
 import javax.inject.Inject;
 import javax.inject.Named;
 
+import org.guvnor.common.services.project.events.RepositoryContributorsUpdatedEvent;
 import org.guvnor.structure.backend.backcompat.BackwardCompatibleUtil;
 import org.guvnor.structure.backend.repositories.RepositoryServiceImpl;
 import org.guvnor.structure.organizationalunit.config.SpaceConfigStorageRegistry;
@@ -58,7 +59,8 @@ public class MigrationRepositoryServiceImpl extends RepositoryServiceImpl {
                                           final AuthorizationManager authorizationManager,
                                           final User user,
                                           final SpacesAPI spacesAPI,
-                                          final SpaceConfigStorageRegistry spaceConfigStorage) {
+                                          final SpaceConfigStorageRegistry spaceConfigStorage,
+                                          final Event<RepositoryContributorsUpdatedEvent> projectContributorsUpdatedEvent) {
         super(ioService,
               metadataStore,
               configurationService,
@@ -72,6 +74,7 @@ public class MigrationRepositoryServiceImpl extends RepositoryServiceImpl {
               authorizationManager,
               user,
               spacesAPI,
-              spaceConfigStorage);
+              spaceConfigStorage,
+              projectContributorsUpdatedEvent);
     }
 }

@@ -23,6 +23,7 @@ import javax.inject.Inject;
 import javax.inject.Named;
 
 import org.guvnor.structure.backend.organizationalunit.OrganizationalUnitServiceImpl;
+import org.guvnor.structure.contributors.SpaceContributorsUpdatedEvent;
 import org.guvnor.structure.organizationalunit.NewOrganizationalUnitEvent;
 import org.guvnor.structure.organizationalunit.RemoveOrganizationalUnitEvent;
 import org.guvnor.structure.organizationalunit.RepoAddedToOrganizationalUnitEvent;
@@ -58,7 +59,8 @@ public class MigrationOrganizationalUnitServiceImpl extends OrganizationalUnitSe
                                                   final SessionInfo sessionInfo,
                                                   @Named("ioStrategy") final IOService ioService,
                                                   final SpaceConfigStorageRegistry spaceConfigStorageRegistry,
-                                                  @Named("systemFS") final FileSystem systemFS) {
+                                                  @Named("systemFS") final FileSystem systemFS,
+                                                  final Event<SpaceContributorsUpdatedEvent> spaceContributorsUpdatedEvent) {
         super(organizationalUnitFactory,
               repositoryService,
               newOrganizationalUnitEvent,
@@ -71,6 +73,7 @@ public class MigrationOrganizationalUnitServiceImpl extends OrganizationalUnitSe
               sessionInfo,
               ioService,
               spaceConfigStorageRegistry,
-              systemFS);
+              systemFS,
+              spaceContributorsUpdatedEvent);
     }
 }

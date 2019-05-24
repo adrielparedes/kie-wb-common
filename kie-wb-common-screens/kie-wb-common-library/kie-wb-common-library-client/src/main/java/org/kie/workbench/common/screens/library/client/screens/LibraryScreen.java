@@ -26,6 +26,7 @@ import org.guvnor.common.services.project.client.security.ProjectController;
 import org.guvnor.common.services.project.events.NewProjectEvent;
 import org.guvnor.common.services.project.model.WorkspaceProject;
 import org.guvnor.structure.client.security.OrganizationalUnitController;
+import org.guvnor.structure.contributors.SpaceContributorsUpdatedEvent;
 import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.guvnor.structure.repositories.RepositoryRemovedEvent;
 import org.jboss.errai.common.client.api.Caller;
@@ -205,9 +206,16 @@ public class LibraryScreen {
 
     public void onProjectCountUpdate(@Observes final ProjectCountUpdate projectCountUpdate) {
         projectContext.getActiveOrganizationalUnit().ifPresent(p -> {
-            if (eventOnCurrentSpace(p,
-                                    projectCountUpdate.getSpace())) {
+            if (eventOnCurrentSpace(p, projectCountUpdate.getSpace())) {
                 view.setProjectsCount(projectCountUpdate.getCount());
+            }
+        });
+    }
+
+    public void onSpaceContributorsUpdated(@Observes final SpaceContributorsUpdatedEvent spaceContributorsUpdatedEvent) {
+        projectContext.getActiveOrganizationalUnit().ifPresent(p -> {
+            if (eventOnCurrentSpace(p, spaceContributorsUpdatedEvent.getOrganizationalUnit().getSpace())) {
+                view.setContributorsCount(spaceContributorsUpdatedEvent.getOrganizationalUnit().getContributors().size());
             }
         });
     }
