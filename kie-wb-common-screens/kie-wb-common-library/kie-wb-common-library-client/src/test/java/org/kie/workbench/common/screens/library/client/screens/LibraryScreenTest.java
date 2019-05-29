@@ -271,7 +271,7 @@ public class LibraryScreenTest {
         libraryScreen.showProjects();
 
         verify(view).updateContent(emptyLibraryScreenElement);
-        verify(view).setProjectsCount(0);
+        verify(view, times(2)).setProjectsCount(0);
     }
 
     @Test
