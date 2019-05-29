@@ -51,8 +51,8 @@ import org.guvnor.structure.organizationalunit.config.SpaceConfigStorageRegistry
 import org.guvnor.structure.repositories.Branch;
 import org.guvnor.structure.repositories.NewBranchEvent;
 import org.guvnor.structure.repositories.Repository;
-import org.guvnor.structure.repositories.RepositoryExternalUpdateEvent;
 import org.guvnor.structure.repositories.RepositoryService;
+import org.guvnor.structure.repositories.RepositoryUpdatedEvent;
 import org.guvnor.structure.security.OrganizationalUnitAction;
 import org.guvnor.structure.security.RepositoryAction;
 import org.jboss.errai.bus.server.annotations.Service;
@@ -123,7 +123,7 @@ public class LibraryServiceImpl implements LibraryService {
     private PathUtil pathUtil;
     private Event<NewBranchEvent> newBranchEvent;
     private ConfiguredRepositories configuredRepositories;
-    private Event<RepositoryExternalUpdateEvent> repositoryExternalUpdate;
+    private Event<RepositoryUpdatedEvent> repositoryUpdatedEvent;
     private SpaceConfigStorageRegistry spaceConfigStorageRegistry;
     private ClusterService clusterService;
 
@@ -148,7 +148,7 @@ public class LibraryServiceImpl implements LibraryService {
                               final PathUtil pathUtil,
                               final Event<NewBranchEvent> newBranchEvent,
                               final ConfiguredRepositories configuredRepositories,
-                              final Event<RepositoryExternalUpdateEvent> repositoryExternalUpdate,
+                              final Event<RepositoryUpdatedEvent> repositoryUpdatedEvent,
                               final SpaceConfigStorageRegistry spaceConfigStorageRegistry,
                               final ClusterService clusterService) {
         this.ouService = ouService;
@@ -168,7 +168,7 @@ public class LibraryServiceImpl implements LibraryService {
         this.pathUtil = pathUtil;
         this.newBranchEvent = newBranchEvent;
         this.configuredRepositories = configuredRepositories;
-        this.repositoryExternalUpdate = repositoryExternalUpdate;
+        this.repositoryUpdatedEvent = repositoryUpdatedEvent;
         this.spaceConfigStorageRegistry = spaceConfigStorageRegistry;
         this.clusterService = clusterService;
     }
@@ -428,7 +428,7 @@ public class LibraryServiceImpl implements LibraryService {
                                   baseBranchName,
                                   project);
 
-            repositoryExternalUpdate.fire(new RepositoryExternalUpdateEvent(project.getRepository()));
+            repositoryUpdatedEvent.fire(new RepositoryUpdatedEvent(repoService.getRepositoryFromSpace(project.getSpace(), project.getRepository().getAlias())));
             fireNewBranchEvent(pathUtil.convert(newBranchPath),
                                newBranchPath);
         } catch (URISyntaxException e) {
@@ -456,6 +456,7 @@ public class LibraryServiceImpl implements LibraryService {
         deleteBranchPermissions(project.getSpace().getName(),
                                 project.getRepository().getIdentifier(),
                                 branch.getName());
+        repositoryUpdatedEvent.fire(new RepositoryUpdatedEvent(repoService.getRepositoryFromSpace(project.getSpace(), project.getRepository().getAlias())));
 //        configuredRepositories.refreshRepository(project.getRepository());
     }
 

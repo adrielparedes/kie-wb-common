@@ -46,6 +46,7 @@ import org.guvnor.structure.repositories.NewBranchEvent;
 import org.guvnor.structure.repositories.Repository;
 import org.guvnor.structure.repositories.RepositoryExternalUpdateEvent;
 import org.guvnor.structure.repositories.RepositoryService;
+import org.guvnor.structure.repositories.RepositoryUpdatedEvent;
 import org.guvnor.structure.security.RepositoryAction;
 import org.junit.Before;
 import org.junit.Test;
@@ -149,7 +150,7 @@ public class LibraryServiceImplTest {
     private ConfiguredRepositories configuredRepositories;
 
     @Mock
-    private EventSourceMock<RepositoryExternalUpdateEvent> repositoryExternalUpdateEvent;
+    private EventSourceMock<RepositoryUpdatedEvent> repositoryUpdatedEvent;
 
     @Mock
     private SpaceConfigStorageRegistry spaceConfigStorageRegistry;
@@ -232,7 +233,7 @@ public class LibraryServiceImplTest {
                                                     pathUtil,
                                                     newBranchEvent,
                                                     configuredRepositories,
-                                                    repositoryExternalUpdateEvent,
+                                                    repositoryUpdatedEvent,
                                                     spaceConfigStorageRegistry,
                                                     clusterService
         ));
@@ -765,7 +766,7 @@ public class LibraryServiceImplTest {
         libraryService.addBranch("new-branch", "repo1-branch1", project);
 
         verify(fileSystemProvider).copy(baseBranchPath, newBranchPath);
-        verify(repositoryExternalUpdateEvent).fire(any());
+        verify(repositoryUpdatedEvent).fire(any());
         verify(newBranchEvent).fire(newBranchEventArgumentCaptor.capture());
 
         final NewBranchEvent newBranchEvent = newBranchEventArgumentCaptor.getValue();
