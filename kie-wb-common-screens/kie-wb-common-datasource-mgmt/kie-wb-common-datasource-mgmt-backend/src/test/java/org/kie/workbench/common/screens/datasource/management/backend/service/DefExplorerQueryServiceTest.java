@@ -447,11 +447,6 @@ public class DefExplorerQueryServiceTest {
         }
 
         @Override
-        public boolean isDeleted() {
-            return false;
-        }
-
-        @Override
         public boolean requiresRefresh() {
             return false;
         }
