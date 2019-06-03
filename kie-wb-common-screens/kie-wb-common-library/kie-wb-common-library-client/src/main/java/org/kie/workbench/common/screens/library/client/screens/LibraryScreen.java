@@ -130,7 +130,6 @@ public class LibraryScreen {
     }
 
     public void showProjects() {
-
         view.setProjectsCount(0);
         final OrganizationalUnit activeOU = projectContext.getActiveOrganizationalUnit()
                 .orElseThrow(() -> new IllegalStateException("Cannot try to query library projects without an active organizational unit."));
@@ -152,21 +151,29 @@ public class LibraryScreen {
 
     private void showEmptyLibraryScreen() {
         view.setProjectsCount(0);
-        view.updateContent(emptyLibraryScreen.getView().getElement());
+        if (view.isProjectsTabActive()) {
+            view.updateContent(emptyLibraryScreen.getView().getElement());
+        }
     }
 
     private void showPopulatedLibraryScreen() {
         view.setProjectsCount(populatedLibraryScreen.getProjectsCount());
-        view.updateContent(populatedLibraryScreen.getView().getElement());
+        if (view.isProjectsTabActive()) {
+            view.updateContent(populatedLibraryScreen.getView().getElement());
+        }
     }
 
     public void showContributors() {
-        view.updateContent(contributorsListPresenter.getView().getElement());
+        if (view.isContributorsTabActive()) {
+            view.updateContent(contributorsListPresenter.getView().getElement());
+        }
     }
 
     public void showMetrics() {
         orgUnitsMetricsScreen.refresh();
-        view.updateContent(orgUnitsMetricsScreen.getView().getElement());
+        if (view.isMetricsTabActive()) {
+            view.updateContent(orgUnitsMetricsScreen.getView().getElement());
+        }
     }
 
     public boolean userCanCreateProjects() {
@@ -183,8 +190,7 @@ public class LibraryScreen {
 
     public void onNewProject(@Observes NewProjectEvent e) {
         projectContext.getActiveOrganizationalUnit().ifPresent(p -> {
-            if (eventOnCurrentSpace(p,
-                                    e.getWorkspaceProject().getSpace())) {
+            if (eventOnCurrentSpace(p, e.getWorkspaceProject().getSpace())) {
                 showProjects();
             }
         });
@@ -192,15 +198,14 @@ public class LibraryScreen {
 
     public void onRepositoryRemovedEvent(@Observes RepositoryRemovedEvent e) {
         projectContext.getActiveOrganizationalUnit().ifPresent(p -> {
-            if (eventOnCurrentSpace(p,
-                                    e.getRepository().getSpace())) {
+            if (eventOnCurrentSpace(p, e.getRepository().getSpace())) {
                 showProjects();
             }
         });
     }
 
-    boolean eventOnCurrentSpace(OrganizationalUnit p,
-                                Space space) {
+    boolean eventOnCurrentSpace(final OrganizationalUnit p,
+                                final Space space) {
         return p.getSpace().getName().equalsIgnoreCase(space.getName());
     }
 
@@ -244,5 +249,11 @@ public class LibraryScreen {
         void setContributorsCount(int count);
 
         void updateContent(HTMLElement content);
+
+        boolean isProjectsTabActive();
+
+        boolean isContributorsTabActive();
+
+        boolean isMetricsTabActive();
     }
 }
