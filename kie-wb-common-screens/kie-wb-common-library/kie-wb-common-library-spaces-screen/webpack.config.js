@@ -19,6 +19,7 @@ const CleanWebpackPlugin = require("clean-webpack-plugin");
 const CircularDependencyPlugin = require("circular-dependency-plugin");
 
 module.exports = {
+  devtool:true,
   entry: {
     "spaces-screen": "./src/spaces-screen/index.tsx"
   },

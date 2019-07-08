@@ -30,7 +30,10 @@ export class SpacesScreenAppFormerComponent extends AppFormer.Screen {
       ["org.guvnor.structure.organizationalunit.RemoveOrganizationalUnitEvent", (e: any) => this.self.refreshSpaces()],
       ["org.kie.workbench.common.screens.library.api.sync.ClusterLibraryEvent", (e: any) => this.self.refreshSpaces()],
       ["org.guvnor.common.services.project.events.NewProjectEvent", (e: any) => this.self.refreshSpaces()],
-      ["org.guvnor.structure.repositories.RepositoryRemovedEvent", (e: any) => this.self.refreshSpaces()]
+      ["org.guvnor.structure.repositories.RepositoryRemovedEvent", (e: any) => {
+      console.log("RepositoryRemovedEvent");
+      this.self.refreshSpaces();
+      }]
     ]);
   }
 
