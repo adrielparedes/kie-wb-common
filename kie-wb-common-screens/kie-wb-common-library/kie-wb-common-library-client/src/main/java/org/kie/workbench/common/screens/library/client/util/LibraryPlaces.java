@@ -256,7 +256,7 @@ public class LibraryPlaces implements WorkspaceProjectContextChangeHandler {
         return self.promises.promisify(self.organizationalUnitService, s -> {
             return s.getOrganizationalUnit(spaceName);
         }).then(space -> {
-            self.projectContextChangeEvent.fire(new WorkspaceProjectContextChangeEvent());
+            self.projectContextChangeEvent.fire(new WorkspaceProjectContextChangeEvent(space));
             return self.goToLibrary();
         });
     }
