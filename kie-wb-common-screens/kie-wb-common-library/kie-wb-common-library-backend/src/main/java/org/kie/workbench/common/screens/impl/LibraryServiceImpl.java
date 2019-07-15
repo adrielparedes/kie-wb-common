@@ -48,6 +48,7 @@ import org.guvnor.structure.organizationalunit.OrganizationalUnit;
 import org.guvnor.structure.organizationalunit.OrganizationalUnitService;
 import org.guvnor.structure.organizationalunit.config.BranchPermissions;
 import org.guvnor.structure.organizationalunit.config.SpaceConfigStorageRegistry;
+import org.guvnor.structure.organizationalunit.exception.OrganizationalUnitAlreadyExistsException;
 import org.guvnor.structure.repositories.Branch;
 import org.guvnor.structure.repositories.NewBranchEvent;
 import org.guvnor.structure.repositories.Repository;
@@ -608,10 +609,14 @@ public class LibraryServiceImpl implements LibraryService {
         contributors.add(new Contributor(preferences.getOrganizationalUnitPreferences().getOwner(),
                                          ContributorType.OWNER));
 
-        return ouService.createOrganizationalUnit(preferences.getOrganizationalUnitPreferences().getName(),
-                                                  preferences.getOrganizationalUnitPreferences().getGroupId(),
-                                                  Collections.emptyList(),
-                                                  contributors);
+        try {
+            return ouService.createOrganizationalUnit(preferences.getOrganizationalUnitPreferences().getName(),
+                                                      preferences.getOrganizationalUnitPreferences().getGroupId(),
+                                                      Collections.emptyList(),
+                                                      contributors);
+        } catch (OrganizationalUnitAlreadyExistsException e) {
+            return ouService.getOrganizationalUnit(preferences.getOrganizationalUnitPreferences().getName());
+        }
     }
 
     private Optional<OrganizationalUnit> getOrganizationalUnit(final String identifier,

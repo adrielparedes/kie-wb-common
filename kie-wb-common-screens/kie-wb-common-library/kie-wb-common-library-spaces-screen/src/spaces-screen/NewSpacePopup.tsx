@@ -76,22 +76,33 @@ export class NewSpacePopup extends React.Component<Props, State> {
         }
       });
 
-    this.setState({ errorMessages: [] }, () =>
-      Promise.resolve()
-        .then(() => Promise.all([emptyName, duplicatedName, validGroupId]))
-        .then(() => Service.createSpace(newSpace))
-        .then(i => {
-          AppFormer.fireEvent(
-            new NotificationEvent({
-              type: NotificationType.SUCCESS,
-              notification: AppFormer.translate("OrganizationalUnitSaveSuccess", [
-                  AppFormer.translate("OrganizationalUnitDefaultAliasInSingular", []).toLowerCase()
-              ])
-            })
-          );
-          return this.props.onClose();
-        })
-        .catch(() => this.setState(prevState => ({ displayedErrorMessages: prevState.errorMessages })))
+    this.setState({ errorMessages: [] }, async () => {
+        try {
+          await Promise.all([emptyName, duplicatedName, validGroupId])
+        } catch (e) {
+          this.setState(prevState => ({ displayedErrorMessages: prevState.errorMessages }));
+          return;
+        }
+
+        const ret = await Service.createSpace(newSpace);
+        if (ret.status === 409) {
+          const duplicatedErrorMessage = AppFormer.translate("DuplicatedOrganizationalUnitValidation", [
+            AppFormer.translate("OrganizationalUnitDefaultAliasInSingular", []).toLowerCase()
+          ]);
+          this.setState({ displayedErrorMessages: [ duplicatedErrorMessage ] });
+          return;
+        }
+
+        const successMessage = new NotificationEvent({
+          type: NotificationType.SUCCESS,
+          notification: AppFormer.translate("OrganizationalUnitSaveSuccess", [
+            AppFormer.translate("OrganizationalUnitDefaultAliasInSingular", [])
+          ])
+        });
+
+        AppFormer.fireEvent(successMessage);
+        return this.props.onClose();
+      }
     );
   }
 
