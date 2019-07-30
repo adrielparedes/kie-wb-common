@@ -16,6 +16,7 @@
 
 package org.kie.workbench.common.screens.examples.backend.server;
 
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+
 import javax.enterprise.event.Event;
 
 import org.guvnor.common.services.project.context.WorkspaceProjectContextChangeEvent;
@@ -70,6 +72,7 @@ import org.mockito.stubbing.Answer;
 import org.uberfire.backend.vfs.Path;
 import org.uberfire.backend.vfs.PathFactory;
 import org.uberfire.io.IOService;
+import org.uberfire.java.nio.file.FileSystem;
 import org.uberfire.mocks.EventSourceMock;
 import org.uberfire.rpc.SessionInfo;
 import org.uberfire.spaces.Space;
@@ -142,6 +145,11 @@ public class ExamplesServiceImplTest {
     @Captor
     private ArgumentCaptor<RepositoryInfo> captor;
 
+    private Map<String, OrganizationalUnit> organizationalUnits = new HashMap();
+
+    @Mock
+    private FileSystem systemFS;
+
     @Before
     public void setup() {
 
@@ -162,9 +170,21 @@ public class ExamplesServiceImplTest {
                                               newProjectEvent,
                                               projectScreenService,
                                               validators,
-                                              spaceConfigStorageRegistry));
+                                              spaceConfigStorageRegistry,
+                                              systemFS));
 
         when(this.validators.getValidators()).thenReturn(new ArrayList<>());
+
+        doAnswer(invocationOnMock -> {
+            String spaceName = (String) invocationOnMock.getArguments()[0];
+            String defaultGroupId = (String) invocationOnMock.getArguments()[1];
+            OrganizationalUnitImpl o = new OrganizationalUnitImpl(spaceName, defaultGroupId);
+            organizationalUnits.put(spaceName, o);
+            return o;
+        }).when(ouService).createOrganizationalUnit(anyString(), anyString());
+
+        doAnswer(invocationOnMock -> organizationalUnits.get(invocationOnMock.getArguments()[0]))
+                .when(ouService).getOrganizationalUnit(anyString());
 
         when(ouService.getOrganizationalUnits()).thenReturn(new HashSet<OrganizationalUnit>() {{
             add(new OrganizationalUnitImpl("ou1Name",
@@ -189,6 +209,13 @@ public class ExamplesServiceImplTest {
         when(sessionInfo.getId()).thenReturn("sessionId");
         when(sessionInfo.getIdentity()).thenReturn(user);
         when(user.getIdentifier()).thenReturn("user");
+    }
+
+    @Test
+    public void testMD5Sum() {
+        URL resource = getClass().getClassLoader().getResource("test.zip");
+        String md5 = service.calculateMD5(resource);
+        assertEquals("088947832487928ebbc994abe4e2ac33", md5);
     }
 
     @Test
@@ -528,23 +555,30 @@ public class ExamplesServiceImplTest {
 
     @Test
     public void resolveGitRepositoryClonedBefore() {
-        ExampleRepository playgroundRepository = new ExampleRepository("file:///home/user/folder/.kie-wb-playground");
-        service.setPlaygroundRepository(playgroundRepository);
+        service.initPlaygroundRepository();
 
         GitRepository repository = mock(GitRepository.class);
         Map<String, Object> repositoryEnvironment = new HashMap<>();
         repositoryEnvironment.put("origin",
-                                  playgroundRepository.getUrl());
+                                  service.getPlaygroundRepository().getUrl());
         when(repository.getEnvironment()).thenReturn(repositoryEnvironment);
 
-        service.getClonedRepositories().add(repository);
+//        service.getClonedRepositories().add(repository);
 
-        Repository result = service.resolveGitRepository(playgroundRepository);
+        Repository result = service.resolveGitRepository(service.getPlaygroundRepository());
 
         assertEquals(repository,
                      result);
 
         verify(repositoryFactory,
                never()).newRepository(any(RepositoryInfo.class));
+    }
+
+    @Test
+    public void deleteOldHiddenSpaces() {
+        String md5 = "1234asd";
+        String spaceName = ".playground-" + md5;
+
+        assertFalse(spaceName.startsWith(".playground") && !spaceName.endsWith(md5));
     }
 }
