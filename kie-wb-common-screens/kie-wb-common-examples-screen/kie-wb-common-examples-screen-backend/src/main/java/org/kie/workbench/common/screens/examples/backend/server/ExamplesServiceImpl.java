@@ -387,6 +387,7 @@ public class ExamplesServiceImpl extends BaseProjectImportService implements Exa
     @Override
     public WorkspaceProjectContextChangeEvent setupExamples(final ExampleOrganizationalUnit exampleTargetOU,
                                                             final List<ImportProject> importProjects) {
+        logger.info("[IMPORT_DEBUG] ExamplesServiceImpl#setupExamples: begin");
         PortablePreconditions.checkNotNull("exampleTargetOU",
                                            exampleTargetOU);
         PortablePreconditions.checkNotNull("exampleProjects",
@@ -397,8 +398,11 @@ public class ExamplesServiceImpl extends BaseProjectImportService implements Exa
         //Retrieve or create Organizational Unit
         final String targetOUName = exampleTargetOU.getName();
         final OrganizationalUnit targetOU = getOrganizationalUnit(targetOUName);
-        return this.importProjects(targetOU,
-                                   importProjects);
+        final WorkspaceProjectContextChangeEvent workspaceProjectContextChangeEvent = this.importProjects(targetOU,
+                                                                                                          importProjects);
+
+        logger.info("[IMPORT_DEBUG] ExamplesServiceImpl#setupExamples: end");
+        return workspaceProjectContextChangeEvent;
     }
 
     @Override
@@ -437,14 +441,17 @@ public class ExamplesServiceImpl extends BaseProjectImportService implements Exa
 
     protected WorkspaceProjectContextChangeEvent importProjects(OrganizationalUnit targetOU,
                                                                 List<ImportProject> projects) {
+        logger.info("[IMPORT_DEBUG] ExamplesServiceImpl#importProjects: begin");
 
         return spaceConfigStorageRegistry.getBatch(targetOU.getSpace().getName())
                 .run(context -> {
+                    logger.info("[IMPORT_DEBUG] ExamplesServiceImpl#importProjects: inside lock");
 
                     WorkspaceProject firstExampleProject = null;
 
                     for (final ImportProject importProject : projects) {
                         try {
+                            logger.info("[IMPORT_DEBUG] ExamplesServiceImpl#importProjects: importing project " + importProject.getName());
                             final Repository targetRepository = repositoryCopier.copy(targetOU,
                                                                                       "example-" + importProject.getName(),
                                                                                       importProject.getRoot());
@@ -466,6 +473,7 @@ public class ExamplesServiceImpl extends BaseProjectImportService implements Exa
                         }
                     }
 
+                    logger.info("[IMPORT_DEBUG] ExamplesServiceImpl#importProjects: end");
                     return new WorkspaceProjectContextChangeEvent(firstExampleProject,
                                                                   firstExampleProject.getMainModule());
                 });
