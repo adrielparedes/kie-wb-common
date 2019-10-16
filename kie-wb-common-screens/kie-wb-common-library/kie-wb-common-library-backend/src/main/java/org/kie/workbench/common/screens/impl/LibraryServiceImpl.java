@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import javax.enterprise.context.ApplicationScoped;
@@ -266,6 +267,8 @@ public class LibraryServiceImpl implements LibraryService {
         checkNotNull("query",
                      query);
 
+        long start = new Date().getTime();
+
         final boolean projectStillExists = ioService.exists(Paths.convert(query.getProject().getBranch().getPath()));
         if (!projectStillExists) {
             log.info("Asset lookup result: project [{}] does not exist.",
@@ -277,13 +280,25 @@ public class LibraryServiceImpl implements LibraryService {
             return AssetQueryResult.unindexed();
         }
 
+        long startBuildProjectAssets = new Date().getTime();
         final HashSet<ValueIndexTerm> queryTerms = buildProjectAssetsQuery(query);
+        long endBuildProjectAssets = new Date().getTime();
 
+        log.info("Build Project Assets time: {}s",
+                 TimeUnit.MILLISECONDS.toSeconds(endBuildProjectAssets - startBuildProjectAssets));
+
+        long startQuery = new Date().getTime();
         final PageResponse<RefactoringPageRow> findRulesByProjectQuery = refactoringQueryService.query(new RefactoringPageRequest(FindAllLibraryAssetsQuery.NAME,
                                                                                                                                   queryTerms,
                                                                                                                                   query.getStartIndex(),
                                                                                                                                   query.getAmount(),
                                                                                                                                   Boolean.TRUE));
+        long endQuery = new Date().getTime();
+
+        log.info("Query Time: {}s",
+                 TimeUnit.MILLISECONDS.toSeconds(endQuery - startQuery));
+
+        long startTransformation = new Date().getTime();
         final List<FolderItem> assets = findRulesByProjectQuery
                 .getPageRowList()
                 .stream()
@@ -294,14 +309,22 @@ public class LibraryServiceImpl implements LibraryService {
                                           FolderItemType.FILE,
                                           false,
                                           Paths.readLockedBy(path),
-                                          Collections.<String>emptyList(),
-                                          explorerServiceHelper.getRestrictedOperations(path));
+                                          Collections.emptyList(),
+                                          new ArrayList<>());
+//                                          explorerServiceHelper.getRestrictedOperations(path));
                 })
                 .collect(Collectors.toList());
+        long endTransformation = new Date().getTime();
 
-        log.info("Asset lookup result: project [{}] is indexed with {} index hits.",
+        log.info("Transformation time: {}s",
+                 TimeUnit.MILLISECONDS.toSeconds(endTransformation - startTransformation));
+
+        long end = new Date().getTime();
+
+        log.info("Asset lookup result: project [{}] is indexed with {} index hits. Time spent {}",
                  projectIdentifierFrom(query),
-                 assets.size());
+                 assets.size(),
+                 TimeUnit.MILLISECONDS.toSeconds(end - start));
         return AssetQueryResult.normal(assets.stream()
                                                .map(asset -> {
                                                    AssetInfo info = null;
@@ -403,7 +426,7 @@ public class LibraryServiceImpl implements LibraryService {
                                                                                      Integer.MAX_VALUE)).getResults();
             return users.stream().map(User::getIdentifier).collect(Collectors.toList());
         } catch (Exception e) {
-            log.error("Error while searching all users: " + e.getClass().getCanonicalName() );
+            log.error("Error while searching all users: " + e.getClass().getCanonicalName());
             return Collections.emptyList();
         }
     }
